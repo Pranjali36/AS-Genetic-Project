@@ -56,9 +56,6 @@ class Blockchain:
         encrypted_data = xor_encrypt(data)
         self.chain[block_index]['data'] = base64.b64encode(encrypted_data.encode()).decode()
 
-# Initialize blockchain
-blockchain = Blockchain()
-
 # Step 5: Streamlit app for the user interaction
 st.title("Genetic Data Security with Blockchain & Encryption")
 
@@ -88,14 +85,12 @@ if st.button("Apply Blockchain & Encryption"):
 
 # Step 9: Simulate Hack Again (After Blockchain)
 if st.button("Simulate Hack Again (After Blockchain)"):
+    # Attempt to simulate the hack again
     hack_result = simulate_hack(original_data)
     st.write(hack_result)
     
     # Attempt to validate with blockchain
     st.write("Checking blockchain data integrity...")
-    
-    # We attempt to simulate the tamper and detect it using blockchain
-    altered_data = simulate_hack(original_data)
     
     blockchain_integrity = True
     for block in blockchain.chain:
