@@ -169,9 +169,12 @@ if 'blockchain_applied' in st.session_state and st.session_state.blockchain_appl
         """)
 
         # Display original data vs secured data (side-by-side)
-        comparison_df = pd.concat([original_data, st.session_state.df], axis=1, ignore_index=True)
-        comparison_df.columns = ['Original Data', 'Secured Data']
-        st.write(comparison_df)
+        # Display original vs secured genetic sequences only
+            comparison_df = pd.DataFrame({
+            'Original Genetic Sequence': original_data['Genetic_Sequence'],
+        'Secured Genetic Sequence': st.session_state.df['Genetic_Sequence']
+})
+st.write(comparison_df)
 
 # Final step: Show the original, untampered data to prove the integrity
 st.write("""
@@ -184,3 +187,7 @@ st.write("### Original Genetic Data (Before Any Tampering)")
 
 # Display the original data, which could not be altered
 st.write(original_data)
+
+comparison_df['Match'] = comparison_df['Original Genetic Sequence'] == comparison_df['Secured Genetic Sequence']
+st.write(comparison_df)
+
