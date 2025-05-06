@@ -90,8 +90,9 @@ if simulate_hack:
         df.at[hack_index, 'Genetic_Sequence'] = new_sequence
         st.write(f"Data altered for Person {df.at[hack_index, 'Person_ID']}.")
     elif attack_type == 'delete':
-        # Delete the row for the selected individual
+        # Delete the row for the selected individual and reset the index
         df.drop(hack_index, inplace=True)
+        df.reset_index(drop=True, inplace=True)  # Reset the index to avoid KeyError
         st.write(f"Data deleted for Person {df.at[hack_index, 'Person_ID']}.")
 
     st.write("### Updated Genetic Data (After Hack Attempt)")
