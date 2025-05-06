@@ -72,6 +72,8 @@ st.write(original_data)
 # Step 7: Simulate hack attempt
 hack_data = original_data.copy()  # Initial copy of original data
 hack_result = None
+
+# Button to simulate hack attempt
 if st.button("Simulate Hack Attempt"):
     hack_data, hack_result = simulate_hack(hack_data)
     st.write(hack_result)
@@ -80,18 +82,20 @@ if st.button("Simulate Hack Attempt"):
 
 # Step 8: Apply Blockchain and Encryption
 blockchain = Blockchain()  # Re-initialize blockchain to ensure fresh start
+blockchain_applied = False  # Flag to track if blockchain has been applied
 if st.button("Apply Blockchain & Encryption"):
     # Apply blockchain encryption to the original data
     for index, row in original_data.iterrows():
         block = blockchain.create_block(previous_hash=blockchain.chain[-1]['hash'])
         blockchain.add_data_to_block(block['index'] - 1, row['Genetic_Sequence'])
 
+    blockchain_applied = True  # Set flag to True after blockchain is applied
     st.write("Blockchain and Encryption Applied!")
     st.write("Encrypted Blockchain Data:")
     st.write(blockchain.chain)
 
 # Step 9: Simulate Hack Again (After Blockchain)
-if st.button("Simulate Hack Again (After Blockchain)"):
+if blockchain_applied and st.button("Simulate Hack Again (After Blockchain)"):
     # Simulate the hack again after blockchain application
     hack_data, hack_result = simulate_hack(hack_data)
     st.write(hack_result)
