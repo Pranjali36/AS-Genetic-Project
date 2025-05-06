@@ -1,106 +1,124 @@
 import streamlit as st
-import pandas as pd
 import hashlib
-import base64
 import random
-import copy
+import base64
 
-# ---------- Helper Functions ----------
+# Dummy data representing genetic data
+data = {
+    'ID': range(10),
+    'Genetic_Sequence': [
+        'ATGCATGCATGC', 'GTCAGTCA', 'AGTCTGAC', 'TGCATGCATGCT', 'GCTAGCTAG',
+        'AGCTAGCTAG', 'TGCAGTGCAT', 'GATGAGTAGT', 'TGCAGTGCATG', 'TACGATGCAT'
+    ]
+}
 
-def generate_sequence():
-    return ''.join(random.choices('ATGC', k=10))
+# Function to encrypt genetic sequence (simple example)
+def encrypt_sequence(sequence):
+    return base64.b64encode(sequence.encode()).decode()
 
-def encrypt_sequence(seq):
-    return base64.b64encode(seq.encode()).decode()
+# Function to generate hash for blockchain
+def hash_block(index, data, previous_hash):
+    block_string = str(index) + str(data) + str(previous_hash)
+    return hashlib.sha256(block_string.encode()).hexdigest()
 
-def hash_block(index, encrypted_data, previous_hash):
-    value = f"{index}{encrypted_data}{previous_hash}".encode()
-    return hashlib.sha256(value).hexdigest()
+# Blockchain class to handle the blocks and blockchain functionality
+class Blockchain:
+    def __init__(self):
+        self.chain = []
+        self.create_block(previous_hash='0')
 
-def create_blockchain(data):
-    blockchain = []
-    previous_hash = '0'
+    def create_block(self, previous_hash):
+        block = {
+            'Index': len(self.chain) + 1,
+            'Previous Hash': previous_hash,
+            'Encrypted Data': None,
+            'Hash': None
+        }
+        block['Hash'] = self.hash_block(block)
+        self.chain.append(block)
+        return block
 
-    for i, row in data.iterrows():
-        encrypted_data = encrypt_sequence(row['Sequence'])
-        block_hash = hash_block(i, encrypted_data, previous_hash)
-        blockchain.append({
-            'Index': i,
-            'Encrypted Data': encrypted_data,
-            'Hash': block_hash,
-            'Previous Hash': previous_hash
-        })
-        previous_hash = block_hash
+    def hash_block(self, block):
+        block_string = str(block['Index']) + block['Previous Hash'] + str(block['Encrypted Data'])
+        return hashlib.sha256(block_string.encode()).hexdigest()
 
-    return blockchain
+    def add_data_to_block(self, block_index, data):
+        encrypted_data = encrypt_sequence(data)
+        self.chain[block_index]['Encrypted Data'] = encrypted_data
+        self.chain[block_index]['Hash'] = self.hash_block(self.chain[block_index])
 
-def attempt_hack_on_copy(blockchain_copy):
-    tampered_index = random.choice(range(len(blockchain_copy)))
-    blockchain_copy[tampered_index]['Encrypted Data'] = encrypt_sequence(generate_sequence())
-    blockchain_copy[tampered_index]['Hash'] = hash_block(
-        blockchain_copy[tampered_index]['Index'],
-        blockchain_copy[tampered_index]['Encrypted Data'],
-        blockchain_copy[tampered_index]['Previous Hash']
-    )
-    return tampered_index
+# Initialize blockchain
+blockchain = Blockchain()
 
-def compare_blockchains(original, tampered):
-    tampered_blocks = []
-    for orig, tam in zip(original, tampered):
-        if orig['Hash'] != tam['Hash']:
-            tampered_blocks.append({
-                'Block Index': orig['Index'],
-                'Original Hash': orig['Hash'],
-                'Tampered Hash': tam['Hash'],
-                'Status': '❌ Tampered'
-            })
+# Create blockchain and add encrypted data
+for i, seq in enumerate(data['Genetic_Sequence']):
+    block = blockchain.create_block(previous_hash=blockchain.chain[-1]['Hash'])
+    blockchain.add_data_to_block(block['Index'] - 1, seq)
+
+# Function to simulate a hack attempt
+def attempt_hack_on_copy(blockchain_copy, tamper_probability=0.5):
+    if random.random() < tamper_probability:
+        tampered_index = random.choice(range(len(blockchain_copy)))
+        blockchain_copy[tampered_index]['Encrypted Data'] = encrypt_sequence('ALTERED_SEQUENCE')
+        blockchain_copy[tampered_index]['Hash'] = hash_block(
+            blockchain_copy[tampered_index]['Index'],
+            blockchain_copy[tampered_index]['Encrypted Data'],
+            blockchain_copy[tampered_index]['Previous Hash']
+        )
+        return tampered_index  # Returns the tampered index
+    else:
+        return None  # No tampering this time
+
+# Streamlit app for displaying the flow
+st.title('Genetic Data Security: Blockchain & Encryption Demo')
+
+st.subheader('Original Blockchain Data')
+
+# Display original blockchain data
+block_data = {
+    'Index': [block['Index'] for block in blockchain.chain],
+    'Previous Hash': [block['Previous Hash'] for block in blockchain.chain],
+    'Encrypted Data': [block['Encrypted Data'] for block in blockchain.chain],
+    'Hash': [block['Hash'] for block in blockchain.chain]
+}
+block_df = pd.DataFrame(block_data)
+st.write(block_df)
+
+# Create a copy of the blockchain for hacking
+blockchain_copy = [block.copy() for block in blockchain.chain]
+
+# Buttons for actions
+col1, col2 = st.columns(2)
+with col1:
+    if st.button('Attempt Hack'):
+        tampered_index = attempt_hack_on_copy(blockchain_copy)
+        if tampered_index is not None:
+            tampered_block = blockchain_copy[tampered_index]
+            st.error(f"🔓 Data altered for Person {tampered_block['Index']}!")
+            st.write(pd.DataFrame([tampered_block]))
         else:
-            tampered_blocks.append({
-                'Block Index': orig['Index'],
-                'Original Hash': orig['Hash'],
-                'Tampered Hash': tam['Hash'],
-                'Status': '✅ Untouched'
+            st.success("No tampering detected. Blockchain is secure.")
+
+with col2:
+    if st.button('Check Blockchain Integrity'):
+        tampered_blocks = [block for block in blockchain_copy if block['Hash'] != blockchain.chain[block['Index']-1]['Hash']]
+        if len(tampered_blocks) > 0:
+            st.error("🔒 Alert: Blockchain data integrity violated! Tampering attempt identified.")
+            tampered_block_data = pd.DataFrame({
+                'Index': [block['Index'] for block in tampered_blocks],
+                'Previous Hash': [block['Previous Hash'] for block in tampered_blocks],
+                'Encrypted Data': [block['Encrypted Data'] for block in tampered_blocks],
+                'Hash': [block['Hash'] for block in tampered_blocks]
             })
-    return tampered_blocks
-
-# ---------- Streamlit App ----------
-
-st.title("🔐 App 2: Securing Genetic Data with Blockchain + Encryption")
-
-# Step 1: Generate original data
-if 'original_data' not in st.session_state:
-    st.session_state.original_data = pd.DataFrame({
-        'Person ID': [f'Person {i+1}' for i in range(10)],
-        'Sequence': [generate_sequence() for _ in range(10)],
-    })
-
-# Step 2: Apply blockchain encryption
-if st.button("🔗 Apply Blockchain + Encryption"):
-    st.session_state.blockchain = create_blockchain(st.session_state.original_data)
-    st.session_state.blockchain_applied = True
-    st.success("Blockchain and encryption applied successfully.")
-
-# Step 3: Attempt hack on a copy
-if st.session_state.get('blockchain_applied', False):
-    if st.button("🚨 Attempt Hack on Secured Data"):
-        st.session_state.tampered_copy = copy.deepcopy(st.session_state.blockchain)
-        tampered_index = attempt_hack_on_copy(st.session_state.tampered_copy)
-        st.session_state.tampered_blocks = compare_blockchains(st.session_state.blockchain, st.session_state.tampered_copy)
-        st.warning("🔒 Alert: Blockchain data integrity violated! Tampering attempt identified.")
-
-# Step 4: View tamper report
-if st.session_state.get('tampered_blocks', None):
-    if st.button("📋 View Tamper Report"):
-        tamper_df = pd.DataFrame(st.session_state.tampered_blocks)
-        st.dataframe(tamper_df)
-
-        if all(b['Status'] == '✅ Untouched' for b in st.session_state.tampered_blocks):
+            st.write(tampered_block_data)
+        else:
             st.success("Blockchain verified: No tampering detected.")
-        else:
-            st.error("Some blocks were tampered. Original blockchain remains intact.")
 
-# Optional: Reset
-st.sidebar.title("Options")
-if st.sidebar.button("🔄 Reset App"):
-    st.session_state.clear()
-    st.experimental_rerun()
+# Display the comparison of original and tampered data
+if tampered_index is not None:
+    st.subheader("Original vs. Secured Data (After Hack Attempt)")
+    comparison_df = pd.DataFrame({
+        'Original Data': [block['Encrypted Data'] for block in blockchain.chain],
+        'Secured Data (After Hack Attempt)': [block['Encrypted Data'] for block in blockchain_copy]
+    })
+    st.write(comparison_df)
