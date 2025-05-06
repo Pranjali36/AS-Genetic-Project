@@ -51,13 +51,13 @@ def xor_encrypt(data, key=123):
 class Blockchain:
     def __init__(self):
         self.chain = []
-        self.create_block(previous_hash='0')
+        self.create_block(previous_hash='0')  # Initialize with the first block, which will have encrypted data
 
     def create_block(self, previous_hash):
         block = {
             'index': len(self.chain) + 1,
             'previous_hash': previous_hash,
-            'data': None,  # Placeholder for encrypted data
+            'data': 'INITIAL_BLOCK',  # Temporary placeholder for the first block
             'hash': None
         }
         block['hash'] = self.hash_block(block)
@@ -97,6 +97,10 @@ st.write(df)
 
 # Apply blockchain to secure the data
 if st.button('Apply Blockchain & Encryption'):
+    # First block should now have encrypted data (not 'INITIAL_BLOCK')
+    block = blockchain.create_block(previous_hash='0')  # Create the first block
+    blockchain.add_data_to_block(block['index'] - 1, df.iloc[0]['Genetic_Sequence'])  # Encrypt the first data point
+    
     # Add encrypted genetic data to the blockchain
     for index, row in df.iterrows():
         block = blockchain.create_block(previous_hash=blockchain.chain[-1]['hash'])
