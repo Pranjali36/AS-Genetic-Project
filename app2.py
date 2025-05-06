@@ -37,12 +37,9 @@ def simulate_hack(df):
         return f"Data altered for Person {df.at[hack_index, 'Person_ID']}."
 
     elif attack_type == 'delete':
-        # Delete the row for the selected individual but keep the hash block for consistency
-        deleted_row = df.loc[hack_index].copy()  # Keep a copy of the deleted row for hash generation
+        # Delete the row for the selected individual
         df.drop(hack_index, inplace=True)
-        # Mark as deleted or empty in the blockchain
-        deleted_row['Genetic_Sequence'] = 'DELETED'
-        return f"Data deleted for Person {deleted_row['Person_ID']}."
+        return f"Data deleted for Person {df.at[hack_index, 'Person_ID']}."
 
 # Simple XOR encryption function (for demonstration purposes)
 def xor_encrypt(data, key=123):
@@ -57,7 +54,7 @@ class Blockchain:
         block = {
             'index': len(self.chain) + 1,
             'previous_hash': previous_hash,
-            'data': 'INITIAL_BLOCK',  # Temporary placeholder for the first block
+            'data': None,  # Placeholder for encrypted data
             'hash': None
         }
         block['hash'] = self.hash_block(block)
@@ -71,16 +68,6 @@ class Blockchain:
     def add_data_to_block(self, block_index, data):
         encrypted_data = xor_encrypt(data)
         self.chain[block_index]['data'] = base64.b64encode(encrypted_data.encode()).decode()
-
-    def add_deleted_data(self, data):
-        # Handle 'deleted' data and ensure it's still part of the chain
-        encrypted_data = xor_encrypt(data)
-        self.chain.append({
-            'index': len(self.chain) + 1,
-            'previous_hash': self.chain[-1]['hash'],
-            'data': base64.b64encode(encrypted_data.encode()).decode(),
-            'hash': self.hash_block({'index': len(self.chain) + 1, 'previous_hash': self.chain[-1]['hash'], 'data': data})
-        })
 
 # Initialize blockchain
 blockchain = Blockchain()
