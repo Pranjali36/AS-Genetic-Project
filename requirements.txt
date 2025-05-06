@@ -1,2 +1,3 @@
 pandas
 streamlit==1.16.0
+altair
