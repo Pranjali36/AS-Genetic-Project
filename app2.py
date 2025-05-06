@@ -2,6 +2,7 @@ import streamlit as st
 import hashlib
 import random
 import base64
+import pandas as pd
 
 # Dummy data representing genetic data
 data = {
