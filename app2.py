@@ -64,20 +64,25 @@ for index, row in df.iterrows():
     block = blockchain.create_block(previous_hash=blockchain.chain[-1]['hash'])
     blockchain.add_data_to_block(block['index'], row['Genetic_Sequence'])
 
-# Display the blockchain with encrypted genetic data (skip the genesis block)
+# Display the blockchain with encrypted data (skip the genesis block)
 block_data = blockchain.chain[1:]  # Skip genesis block (block 0)
 
 # Streamlit UI to simulate Blockchain & Encryption
 st.title("Blockchain & Encryption Simulation for Genetic Data")
 
-# Display the blockchain with encrypted data
-st.write("### Blockchain with Encrypted Genetic Data")
-for block in block_data:
-    st.write(f"**Block {block['index']}**:")
-    st.write(f"Previous Hash: {block['previous_hash']}")
-    st.write(f"Encrypted Data: {block['data']}")
-    st.write(f"Block Hash: {block['hash']}")
-    st.write("\n")
+# Display buttons to trigger actions
+display_blockchain = st.button("Show Blockchain & Encrypted Data")
+simulate_hack = st.button("Simulate Hack Attempt")
+
+# Only display the blockchain when the button is clicked
+if display_blockchain:
+    st.write("### Blockchain with Encrypted Genetic Data")
+    for block in block_data:
+        st.write(f"**Block {block['index']}**:")
+        st.write(f"Previous Hash: {block['previous_hash']}")
+        st.write(f"Encrypted Data: {block['data']}")
+        st.write(f"Block Hash: {block['hash']}")
+        st.write("\n")
 
 # Simulate a hack attempt (altering or deleting data)
 def simulate_hack(df):
@@ -97,10 +102,10 @@ def simulate_hack(df):
         return f"Data deleted for Person {df.at[hack_index, 'Person_ID']}."
 
 # Display button to simulate hack
-if st.button("Simulate Hack Attempt"):
+if simulate_hack:
     hack_result = simulate_hack(df)
     st.write(hack_result)
 
-# Display the updated DataFrame after hack attempt
-st.write("### Updated Genetic Data (After Hack Attempt)")
-st.write(df)
+    # Display the updated DataFrame after hack attempt
+    st.write("### Updated Genetic Data (After Hack Attempt)")
+    st.write(df)
