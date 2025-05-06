@@ -24,10 +24,9 @@ class Blockchain:
         self.create_genesis_block()
 
     def create_genesis_block(self):
-        # The genesis block does not hold data and is just the starting point
         genesis_block = {
             'index': 0,
-            'previous_hash': '0',  # The previous hash is 0 for the first block
+            'previous_hash': '0',
             'data': None,           # No data in the genesis block
             'hash': self.hash_block({
                 'index': 0,
@@ -39,7 +38,7 @@ class Blockchain:
 
     def create_block(self, previous_hash):
         block = {
-            'index': len(self.chain),  # Index starts from 1 (after genesis block)
+            'index': len(self.chain),  
             'previous_hash': previous_hash,
             'data': None,  # Placeholder for encrypted data
             'hash': None
@@ -70,12 +69,50 @@ block_data = blockchain.chain[1:]  # Skip genesis block (block 0)
 # Streamlit UI to simulate Blockchain & Encryption
 st.title("Blockchain & Encryption Simulation for Genetic Data")
 
-# Display buttons to trigger actions
-display_blockchain = st.button("Show Blockchain & Encrypted Data")
+# Explanation of the flow
+st.write("### Step 1: Genetic Data and Hack Attempt")
+st.write("""
+Before applying any security measures, let's simulate the hack attempt and alter the genetic data.
+Click the button below to simulate a hack attempt on the data.
+""")
+
+# Display button to simulate hack attempt
 simulate_hack = st.button("Simulate Hack Attempt")
 
-# Only display the blockchain when the button is clicked
+if simulate_hack:
+    # Simulate a hack attempt (altering or deleting data)
+    hack_index = random.choice(df.index)
+    attack_type = random.choice(['alter', 'delete'])
+
+    if attack_type == 'alter':
+        # Alter the genetic sequence of the selected individual
+        new_sequence = ''.join(random.choices('ACGT', k=8))  # Generate a new random sequence
+        df.at[hack_index, 'Genetic_Sequence'] = new_sequence
+        st.write(f"Data altered for Person {df.at[hack_index, 'Person_ID']}.")
+    elif attack_type == 'delete':
+        # Delete the row for the selected individual
+        df.drop(hack_index, inplace=True)
+        st.write(f"Data deleted for Person {df.at[hack_index, 'Person_ID']}.")
+
+    st.write("### Updated Genetic Data (After Hack Attempt)")
+    st.write(df)
+
+    st.write("#### What happens now?")
+    st.write("In the current dataset, you can see that the genetic data has been altered or deleted.")
+
+# Provide instruction for next step
+st.write("""
+### Step 2: Apply Blockchain & Encryption
+Now that we have simulated a hack attempt and seen how the data can be altered or deleted, 
+let's apply blockchain and encryption to prevent unauthorized changes to the data.
+Click the button below to apply blockchain and encryption, which will secure the data.
+""")
+
+# Display button to apply blockchain and encryption
+display_blockchain = st.button("Apply Blockchain & Encryption")
+
 if display_blockchain:
+    # Display the blockchain with encrypted data
     st.write("### Blockchain with Encrypted Genetic Data")
     for block in block_data:
         st.write(f"**Block {block['index']}**:")
@@ -84,28 +121,9 @@ if display_blockchain:
         st.write(f"Block Hash: {block['hash']}")
         st.write("\n")
 
-# Simulate a hack attempt (altering or deleting data)
-def simulate_hack(df):
-    # Randomly choose a row to alter or delete
-    hack_index = random.choice(df.index)
-    attack_type = random.choice(['alter', 'delete'])
-
-    if attack_type == 'alter':
-        # Alter the genetic sequence of the selected individual
-        new_sequence = ''.join(random.choices('ACGT', k=8))  # Generate a new random sequence
-        df.at[hack_index, 'Genetic_Sequence'] = new_sequence
-        return f"Data altered for Person {df.at[hack_index, 'Person_ID']}."
-
-    elif attack_type == 'delete':
-        # Delete the row for the selected individual
-        df.drop(hack_index, inplace=True)
-        return f"Data deleted for Person {df.at[hack_index, 'Person_ID']}."
-
-# Display button to simulate hack
-if simulate_hack:
-    hack_result = simulate_hack(df)
-    st.write(hack_result)
-
-    # Display the updated DataFrame after hack attempt
-    st.write("### Updated Genetic Data (After Hack Attempt)")
-    st.write(df)
+    st.write("""
+    #### What happens now?
+    Notice how the genetic data is encrypted and stored in the blockchain.
+    If any attempt is made to alter the data, the hash of the block will change, invalidating the entire chain.
+    Blockchain ensures the integrity of genetic data by preventing unauthorized changes.
+    """)
