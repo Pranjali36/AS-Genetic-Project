@@ -1,4 +1,3 @@
-pandas==1.5.3
+pandas
 streamlit==1.12.0
-random
 hashlib
