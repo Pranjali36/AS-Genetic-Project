@@ -127,3 +127,33 @@ if display_blockchain:
     If any attempt is made to alter the data, the hash of the block will change, invalidating the entire chain.
     Blockchain ensures the integrity of genetic data by preventing unauthorized changes.
     """)
+
+    # Disable the "Simulate Hack Attempt" button after blockchain is applied
+    st.session_state.blockchain_applied = True
+    st.session_state.df = df.copy()  # Save the df after blockchain application for consistency
+
+# If blockchain has been applied, simulate unsuccessful hack attempt
+if 'blockchain_applied' in st.session_state and st.session_state.blockchain_applied:
+    st.write("""
+    ### Attempt to Hack After Blockchain Applied
+    Since blockchain and encryption are now applied, any attempt to alter the data will fail.
+    Try to alter the data by clicking the button below.
+    """)
+
+    # Display button for hacking attempt after blockchain
+    simulate_hack_post_blockchain = st.button("Simulate Hack Attempt After Blockchain")
+
+    if simulate_hack_post_blockchain:
+        # Show message explaining that tampering is no longer possible due to blockchain
+        st.write("#### Hack Attempt Failed!")
+        st.write("Any attempt to alter the data will now invalidate the blockchain and prevent unauthorized changes.")
+        st.write("Blockchain technology has successfully protected the data integrity.")
+
+        # Show the blockchain after attempted hack
+        st.write("### Blockchain Data After Hack Attempt")
+        for block in blockchain.chain[1:]:  # Skip genesis block
+            st.write(f"**Block {block['index']}**:")
+            st.write(f"Previous Hash: {block['previous_hash']}")
+            st.write(f"Encrypted Data: {block['data']}")
+            st.write(f"Block Hash: {block['hash']}")
+            st.write("\n")
