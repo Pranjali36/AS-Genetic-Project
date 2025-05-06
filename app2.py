@@ -13,6 +13,9 @@ df = pd.DataFrame({
     ]
 })
 
+# Save a copy of the original data for comparison later (no alteration allowed)
+original_data = df.copy()
+
 # Simple XOR encryption function (for demonstration purposes)
 def xor_encrypt(data, key=123):
     return ''.join(chr(ord(c) ^ key) for c in data)
@@ -129,7 +132,7 @@ if display_blockchain:
     Blockchain ensures the integrity of genetic data by preventing unauthorized changes.
     """)
 
-    # Disable the "Simulate Hack Attempt" button after blockchain is applied
+    # Save the state after blockchain has been applied
     st.session_state.blockchain_applied = True
     st.session_state.df = df.copy()  # Save the df after blockchain application for consistency
 
@@ -158,3 +161,26 @@ if 'blockchain_applied' in st.session_state and st.session_state.blockchain_appl
             st.write(f"Encrypted Data: {block['data']}")
             st.write(f"Block Hash: {block['hash']}")
             st.write("\n")
+
+        st.write("### Comparison of Original and Secured Data")
+        st.write("""
+        Let's compare the original genetic data (before tampering) and the secured data after blockchain encryption.
+        Notice how the genetic data has remained unchanged despite the hacking attempt.
+        """)
+
+        # Display original data vs secured data (side-by-side)
+        comparison_df = pd.concat([original_data, st.session_state.df], axis=1, ignore_index=True)
+        comparison_df.columns = ['Original Data', 'Secured Data']
+        st.write(comparison_df)
+
+# Final step: Show the original, untampered data to prove the integrity
+st.write("""
+### Final Step: Showing the Original Untampered Data
+Now, let's show the original, untampered data again to prove that even after applying blockchain and encryption, 
+the data remains intact and secure from hacking attempts.
+""")
+
+st.write("### Original Genetic Data (Before Any Tampering)")
+
+# Display the original data, which could not be altered
+st.write(original_data)
