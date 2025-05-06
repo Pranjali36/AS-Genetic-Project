@@ -8,6 +8,10 @@ import random
 def xor_encrypt(data, key=123):
     return ''.join(chr(ord(c) ^ key) for c in data)
 
+# Function to generate a new genetic sequence (for hack simulation)
+def generate_sequence():
+    return ''.join(random.choices('ATCG', k=8))
+
 # Simulating a hack attempt (altering or deleting data)
 def simulate_hack(df):
     hack_index = random.choice(df.index)
@@ -59,13 +63,11 @@ class Blockchain:
 # Generating a sample dataframe (simulating genetic data)
 def generate_sample_data():
     data = {
-        'Person_ID': [f'ID{i}' for i in range(1, 6)],
+        'Person_ID': [f'ID{i}' for i in range(1, 11)],  # 10 rows of data
         'Genetic_Sequence': [
-            'ATCGGCTA',
-            'CGTACGTA',
-            'GATCAGTC',
-            'TGCATGCA',
-            'AACGTGCA'
+            'ATCGGCTA', 'CGTACGTA', 'GATCAGTC', 'TGCATGCA',
+            'AACGTGCA', 'TTGCAATG', 'GGTACCAG', 'AATCGTCA',
+            'CGAATCGT', 'TACGTGCA'
         ]
     }
     return pd.DataFrame(data)
@@ -95,7 +97,7 @@ df = generate_sample_data()
 # Show original data button
 if st.button("Show Original Genetic Data"):
     st.subheader("Original Genetic Data")
-    st.dataframe(df)
+    st.dataframe(df)  # This will show all 10 rows
 
 # Simulate Hack Button
 if st.button("Simulate Hack Attempt"):
@@ -106,7 +108,7 @@ if st.button("Simulate Hack Attempt"):
 
     # Display the altered data
     st.subheader("Altered Genetic Data")
-    st.dataframe(altered_df)
+    st.dataframe(df)  # This will show the altered data with all rows
 
 # Blockchain simulation button
 if st.button("Simulate Blockchain & Encryption"):
