@@ -2,7 +2,7 @@ import streamlit as st
 import hashlib
 import random
 import base64
-import pandas as pd
+import pandas as pd  # Import pandas for data handling
 
 # Dummy data representing genetic data
 data = {
@@ -88,6 +88,9 @@ st.write(block_df)
 # Create a copy of the blockchain for hacking
 blockchain_copy = [block.copy() for block in blockchain.chain]
 
+# Initialize tampered_index to None
+tampered_index = None
+
 # Buttons for actions
 col1, col2 = st.columns(2)
 with col1:
@@ -102,16 +105,19 @@ with col1:
 
 with col2:
     if st.button('Check Blockchain Integrity'):
-        tampered_blocks = [block for block in blockchain_copy if block['Hash'] != blockchain.chain[block['Index']-1]['Hash']]
-        if len(tampered_blocks) > 0:
-            st.error("🔒 Alert: Blockchain data integrity violated! Tampering attempt identified.")
-            tampered_block_data = pd.DataFrame({
-                'Index': [block['Index'] for block in tampered_blocks],
-                'Previous Hash': [block['Previous Hash'] for block in tampered_blocks],
-                'Encrypted Data': [block['Encrypted Data'] for block in tampered_blocks],
-                'Hash': [block['Hash'] for block in tampered_blocks]
-            })
-            st.write(tampered_block_data)
+        if tampered_index is not None:
+            tampered_blocks = [block for block in blockchain_copy if block['Hash'] != blockchain.chain[block['Index']-1]['Hash']]
+            if len(tampered_blocks) > 0:
+                st.error("🔒 Alert: Blockchain data integrity violated! Tampering attempt identified.")
+                tampered_block_data = pd.DataFrame({
+                    'Index': [block['Index'] for block in tampered_blocks],
+                    'Previous Hash': [block['Previous Hash'] for block in tampered_blocks],
+                    'Encrypted Data': [block['Encrypted Data'] for block in tampered_blocks],
+                    'Hash': [block['Hash'] for block in tampered_blocks]
+                })
+                st.write(tampered_block_data)
+            else:
+                st.success("Blockchain verified: No tampering detected.")
         else:
             st.success("Blockchain verified: No tampering detected.")
 
