@@ -1,17 +1,34 @@
 import hashlib
 import base64
-import pandas as pd
 import streamlit as st
+import pandas as pd
+import random
 
 # Simple XOR encryption function (for demonstration purposes)
 def xor_encrypt(data, key=123):
     return ''.join(chr(ord(c) ^ key) for c in data)
 
-# Simulate blockchain structure for storing encrypted data
+# Simulating a hack attempt (altering or deleting data)
+def simulate_hack(df):
+    hack_index = random.choice(df.index)
+    attack_type = random.choice(['alter', 'delete'])
+
+    if attack_type == 'alter':
+        new_sequence = generate_sequence()
+        df.at[hack_index, 'Genetic_Sequence'] = new_sequence
+        return f"Data altered for Person {df.at[hack_index, 'Person_ID']}."
+    elif attack_type == 'delete':
+        df.drop(hack_index, inplace=True)
+        return f"Data deleted for Person {df.at[hack_index, 'Person_ID']}."
+
+# Blockchain class for encryption and validation
 class Blockchain:
     def __init__(self):
         self.chain = []
         self.create_block(previous_hash='0')
+
+    def __len__(self):
+        return len(self.chain)
 
     def create_block(self, previous_hash):
         block = {
@@ -32,38 +49,89 @@ class Blockchain:
         encrypted_data = xor_encrypt(data)
         self.chain[block_index]['data'] = base64.b64encode(encrypted_data.encode()).decode()
 
-# Load or create the dataset (This should match the dataset in Cell 4)
-df = pd.DataFrame({
-    'Person_ID': range(1, 6),
-    'Genetic_Sequence': ['ATCGATCGGT', 'CGTACGATAC', 'GCTAGCTAGG', 'TGCATGCAAG', 'ACGTACGTAA']
-})
+    # Check the integrity of the blockchain (if any block's hash doesn't match, chain is invalid)
+    def validate_chain(self):
+        for i in range(1, len(self.chain)):
+            if self.chain[i]['previous_hash'] != self.chain[i-1]['hash']:
+                return False
+        return True
 
-# Streamlit UI for Cell 5 - Encryption + Blockchain Simulation
-st.write("## Encryption + Blockchain Simulation")
-st.write("This is how genetic data can be secured using encryption and blockchain.")
+# Generating a sample dataframe (simulating genetic data)
+def generate_sample_data():
+    data = {
+        'Person_ID': [f'ID{i}' for i in range(1, 6)],
+        'Genetic_Sequence': [
+            'ATCGGCTA',
+            'CGTACGTA',
+            'GATCAGTC',
+            'TGCATGCA',
+            'AACGTGCA'
+        ]
+    }
+    return pd.DataFrame(data)
 
-# Initialize blockchain
-blockchain = Blockchain()
+# Simulating data alteration before blockchain
+def data_alteration_simulation(df):
+    hack_result = simulate_hack(df)
+    return hack_result, df
 
-# Add encrypted genetic data to the blockchain
-for index, row in df.iterrows():
-    block = blockchain.create_block(previous_hash=blockchain.chain[-1]['hash'])
-    blockchain.add_data_to_block(block['index'] - 1, row['Genetic_Sequence'])
+# Simulate blockchain storing the data
+def add_data_to_blockchain(df):
+    blockchain = Blockchain()
 
-# Display the blockchain with encrypted genetic data
-st.write("### Blockchain with Encrypted Data")
-for block in blockchain.chain:
-    st.write(f"Block {block['index']}: Data: {block['data']}, Hash: {block['hash']}, Previous Hash: {block['previous_hash']}")
+    # Add encrypted genetic data to the blockchain
+    for index, row in df.iterrows():
+        block = blockchain.create_block(previous_hash=blockchain.chain[-1]['hash'])
+        blockchain.add_data_to_block(block['index'] - 1, row['Genetic_Sequence'])
 
-# Validate blockchain integrity
-def validate_blockchain(blockchain):
-    for i in range(1, len(blockchain)):
-        if blockchain[i]['previous_hash'] != blockchain[i-1]['hash']:
-            return False, i  # Invalid blockchain at the given block
-    return True, None
+    return blockchain
 
-valid, error_block = validate_blockchain(blockchain)
-if valid:
-    st.write("Blockchain is valid. Data integrity is maintained.")
-else:
-    st.write(f"Blockchain is invalid at block {error_block}. Data integrity has been compromised!")
+# Streamlit UI for the demonstration
+st.title("Genetic Data Security: Blockchain Simulation")
+
+# Load the sample data
+df = generate_sample_data()
+
+# Show original data button
+if st.button("Show Original Genetic Data"):
+    st.subheader("Original Genetic Data")
+    st.dataframe(df)
+
+# Simulate Hack Button
+if st.button("Simulate Hack Attempt"):
+    # Hack attempt simulation (alter or delete data)
+    st.subheader("Hack Attempt Simulation")
+    hack_result, altered_df = data_alteration_simulation(df)
+    st.write(hack_result)
+
+    # Display the altered data
+    st.subheader("Altered Genetic Data")
+    st.dataframe(altered_df)
+
+# Blockchain simulation button
+if st.button("Simulate Blockchain & Encryption"):
+    st.subheader("Blockchain & Encryption Simulation")
+
+    blockchain = add_data_to_blockchain(df)
+
+    # Display the blockchain with encrypted data
+    st.write("Blockchain (Encrypted Data):")
+    for block in blockchain.chain:
+        st.write(f"Block {block['index']}:")
+        st.write(f"Hash: {block['hash']}")
+        st.write(f"Encrypted Data: {block['data']}")
+
+# Blockchain Validation button
+if st.button("Validate Blockchain"):
+    st.subheader("Blockchain Validation")
+
+    blockchain = add_data_to_blockchain(df)
+
+    # Simulate how blockchain prevents alteration
+    is_valid = blockchain.validate_chain()
+    if is_valid:
+        st.write("Blockchain: The data is valid, no alteration detected.")
+    else:
+        st.write("Blockchain: The chain is invalid, data was altered!")
+
+    st.write("The blockchain prevents data alteration because each block’s hash is dependent on the previous block’s hash. If any block is tampered with, the entire chain will become invalid. Hence, the integrity of genetic data is preserved.")
