@@ -15,6 +15,8 @@ def generate_dummy_data():
 
 # Step 2: Simulate hack attempt (altering or deleting data)
 def simulate_hack(df):
+    # Reset index to avoid key errors when accessing rows after deletion
+    df = df.reset_index(drop=True)
     hack_index = random.choice(df.index)
     attack_type = random.choice(['alter', 'delete'])
 
@@ -26,6 +28,8 @@ def simulate_hack(df):
     elif attack_type == 'delete':
         df.drop(hack_index, inplace=True)
         return f"Data deleted for Person {df.at[hack_index, 'Person_ID']}."
+
+    return df
 
 # Step 3: Simple XOR encryption for demonstration
 def xor_encrypt(data, key=123):
@@ -66,10 +70,11 @@ st.write(original_data)
 
 # Step 7: Simulate hack attempt
 if st.button("Simulate Hack Attempt"):
-    hack_result = simulate_hack(original_data)
+    original_data_copy = original_data.copy()  # Copy original data to simulate hack
+    hack_result = simulate_hack(original_data_copy)
     st.write(hack_result)
     st.write("Updated Genetic Data (After Hack Attempt):")
-    st.write(original_data)
+    st.write(hack_result)
 
 # Step 8: Apply Blockchain and Encryption
 if st.button("Apply Blockchain & Encryption"):
@@ -86,7 +91,8 @@ if st.button("Apply Blockchain & Encryption"):
 # Step 9: Simulate Hack Again (After Blockchain)
 if st.button("Simulate Hack Again (After Blockchain)"):
     # Attempt to simulate the hack again
-    hack_result = simulate_hack(original_data)
+    original_data_copy = original_data.copy()  # Copy original data to simulate hack
+    hack_result = simulate_hack(original_data_copy)
     st.write(hack_result)
     
     # Attempt to validate with blockchain
