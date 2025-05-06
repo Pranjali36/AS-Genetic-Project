@@ -16,10 +16,6 @@ data = {
 # Create DataFrame
 df = pd.DataFrame(data)
 
-# Display original data in the sidebar
-st.sidebar.header("Original Genetic Data")
-st.sidebar.write(df)
-
 # Generate a random genetic sequence for hacking attempts
 def generate_sequence():
     return ''.join(random.choices('ACGT', k=8))
@@ -71,6 +67,10 @@ class Blockchain:
 
 # Initialize blockchain
 blockchain = Blockchain()
+
+# Display original data
+st.sidebar.header("Original Genetic Data")
+st.sidebar.write(df)
 
 # Simulate the hack attempt (alteration or deletion) and update the blockchain
 hack_result = ''
