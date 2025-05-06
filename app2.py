@@ -1,50 +1,41 @@
-import streamlit as st
-import pandas as pd
 import hashlib
 import base64
 import random
+import pandas as pd
+import streamlit as st
 
-# Sample data for genetic sequences
-data = {
-    'Person_ID': [f'P{i}' for i in range(10)],
-    'Genetic_Sequence': [
-        'ATCGTACG', 'GGTCTAGG', 'AACGGTTC', 'CTAGCTAG', 'GTCTTCCA',
-        'GACGTCAG', 'TGCATGCG', 'AACCTGGA', 'GGATACCA', 'TCGGAATA'
-    ]
-}
+# Step 1: Generate dummy genetic data
+def generate_dummy_data():
+    data = {
+        'Person_ID': [i for i in range(10)],
+        'Genetic_Sequence': ['ATCG'*5 for _ in range(10)],
+        'Accession_Number': ['ACC' + str(i).zfill(4) for i in range(10)]
+    }
+    return pd.DataFrame(data)
 
-# Create DataFrame
-df = pd.DataFrame(data)
-
-# Generate a random genetic sequence for hacking attempts
-def generate_sequence():
-    return ''.join(random.choices('ACGT', k=8))
-
-# Simulating a hack attempt (altering or deleting data)
+# Step 2: Simulate hack attempt (altering or deleting data)
 def simulate_hack(df):
-    # Randomly choose a row to alter or delete
     hack_index = random.choice(df.index)
     attack_type = random.choice(['alter', 'delete'])
 
     if attack_type == 'alter':
-        # Alter the genetic sequence of the selected individual
-        new_sequence = generate_sequence()
+        new_sequence = 'GCTA'*5  # Simulating a change in genetic sequence
         df.at[hack_index, 'Genetic_Sequence'] = new_sequence
         return f"Data altered for Person {df.at[hack_index, 'Person_ID']}."
-
+    
     elif attack_type == 'delete':
-        # Delete the row for the selected individual
         df.drop(hack_index, inplace=True)
         return f"Data deleted for Person {df.at[hack_index, 'Person_ID']}."
 
-# Simple XOR encryption function (for demonstration purposes)
+# Step 3: Simple XOR encryption for demonstration
 def xor_encrypt(data, key=123):
     return ''.join(chr(ord(c) ^ key) for c in data)
 
+# Step 4: Simulate blockchain structure for storing encrypted data
 class Blockchain:
     def __init__(self):
         self.chain = []
-        self.create_block(previous_hash='0')  # Initialize with the first block, which will have encrypted data
+        self.create_block(previous_hash='0')
 
     def create_block(self, previous_hash):
         block = {
@@ -68,85 +59,58 @@ class Blockchain:
 # Initialize blockchain
 blockchain = Blockchain()
 
-# Display original data
-st.sidebar.header("Original Genetic Data")
-st.sidebar.write(df)
+# Step 5: Streamlit app for the user interaction
+st.title("Genetic Data Security with Blockchain & Encryption")
 
-# Simulate the hack attempt (alteration or deletion) and update the blockchain
-hack_result = ''
-if st.button('Simulate Hack Attempt'):
-    hack_result = simulate_hack(df)
+# Step 6: Load original data
+original_data = generate_dummy_data()
+st.subheader("Original Genetic Data")
+st.write(original_data)
+
+# Step 7: Simulate hack attempt
+if st.button("Simulate Hack Attempt"):
+    hack_result = simulate_hack(original_data)
     st.write(hack_result)
+    st.write("Updated Genetic Data (After Hack Attempt):")
+    st.write(original_data)
 
-# Display updated data after hack attempt
-st.write("Updated Genetic Data (After Hack Attempt):")
-st.write(df)
-
-# Apply blockchain to secure the data
-if st.button('Apply Blockchain & Encryption'):
-    # First block should now have encrypted data (not 'INITIAL_BLOCK')
-    block = blockchain.create_block(previous_hash='0')  # Create the first block
-    blockchain.add_data_to_block(block['index'] - 1, df.iloc[0]['Genetic_Sequence'])  # Encrypt the first data point
-    
-    # Add encrypted genetic data to the blockchain
-    for index, row in df.iterrows():
+# Step 8: Apply Blockchain and Encryption
+if st.button("Apply Blockchain & Encryption"):
+    # Apply blockchain encryption to the original data
+    blockchain = Blockchain()  # Re-initialize blockchain to ensure fresh start
+    for index, row in original_data.iterrows():
         block = blockchain.create_block(previous_hash=blockchain.chain[-1]['hash'])
         blockchain.add_data_to_block(block['index'] - 1, row['Genetic_Sequence'])
 
-    # Display the blockchain with encrypted genetic data
-    st.write("Blockchain with Encrypted Genetic Data:")
-    blockchain_data = []
-    for block in blockchain.chain:
-        blockchain_data.append({
-            'Block Index': block['index'],
-            'Previous Hash': block['previous_hash'],
-            'Encrypted Data': block['data'],
-            'Hash': block['hash']
-        })
-    blockchain_df = pd.DataFrame(blockchain_data)
-    st.write(blockchain_df)
+    st.write("Blockchain and Encryption Applied!")
+    st.write("Encrypted Blockchain Data:")
+    st.write(blockchain.chain)
 
-# Comparison of original data and secured data
-if st.button('Compare Original Data and Secured Data'):
-    st.write("Comparison between Original Data and Secured Data:")
-    
-    original_data = df.copy()
-    secured_data = []
-
-    for block in blockchain.chain:
-        # Show encrypted data as it is in blockchain
-        secured_data.append({
-            'Block Index': block['index'],
-            'Encrypted Data': block['data']
-        })
-    
-    comparison_df = pd.DataFrame(secured_data)
-    st.write("Secured Data:")
-    st.write(comparison_df)
-
-    st.write("Original Data (Unchanged):")
-    st.write(original_data)
-
-# Final demonstration: Attempt to hack again after applying blockchain
-if st.button('Simulate Hack Attempt Again (After Blockchain Applied)'):
-    hack_result = simulate_hack(df)
+# Step 9: Simulate Hack Again (After Blockchain)
+if st.button("Simulate Hack Again (After Blockchain)"):
+    hack_result = simulate_hack(original_data)
     st.write(hack_result)
     
-    # Blockchain data remains unaltered after hacking attempt
-    blockchain_after_hack = []
-    for block in blockchain.chain:
-        blockchain_after_hack.append({
-            'Block Index': block['index'],
-            'Previous Hash': block['previous_hash'],
-            'Encrypted Data': block['data'],
-            'Hash': block['hash']
-        })
+    # Attempt to validate with blockchain
+    st.write("Checking blockchain data integrity...")
     
-    blockchain_after_hack_df = pd.DataFrame(blockchain_after_hack)
-    st.write("Blockchain after Hack Attempt:")
-    st.write(blockchain_after_hack_df)
-
-    # Show that the original data remains intact (no tampering)
-    comparison_df_after_hack = pd.DataFrame(secured_data)
-    st.write("Secured Data (No Changes After Hack Attempt):")
-    st.write(comparison_df_after_hack)
+    # We attempt to simulate the tamper and detect it using blockchain
+    altered_data = simulate_hack(original_data)
+    
+    blockchain_integrity = True
+    for block in blockchain.chain:
+        if not block['hash'] == blockchain.hash_block(block):
+            blockchain_integrity = False
+    
+    if blockchain_integrity:
+        st.write("Blockchain verified: Data cannot be tampered!")
+    else:
+        st.write("Data integrity check failed!")
+    
+    # Display Original Data and Blockchain Data
+    st.subheader("Original Data (Before Blockchain)")
+    st.write(original_data)
+    
+    st.subheader("Secured Data (After Blockchain & Encryption)")
+    for block in blockchain.chain:
+        st.write(f"Block {block['index']} - Encrypted Data: {block['data']} - Hash: {block['hash']}")
