@@ -23,13 +23,14 @@ def simulate_hack(df):
     if attack_type == 'alter':
         new_sequence = 'GCTA'*5  # Simulating a change in genetic sequence
         df.at[hack_index, 'Genetic_Sequence'] = new_sequence
-        return f"Data altered for Person {df.at[hack_index, 'Person_ID']}."
+        return df, f"Data altered for Person {df.at[hack_index, 'Person_ID']}."
     
     elif attack_type == 'delete':
         df.drop(hack_index, inplace=True)
-        return f"Data deleted for Person {df.at[hack_index, 'Person_ID']}."
+        df = df.reset_index(drop=True)  # Reset index after deletion
+        return df, f"Data deleted for Person {df.at[hack_index, 'Person_ID']}."
 
-    return df
+    return df, "No changes made."
 
 # Step 3: Simple XOR encryption for demonstration
 def xor_encrypt(data, key=123):
@@ -69,17 +70,17 @@ st.subheader("Original Genetic Data")
 st.write(original_data)
 
 # Step 7: Simulate hack attempt
+hack_data = original_data.copy()  # Initial copy of original data
 if st.button("Simulate Hack Attempt"):
-    original_data_copy = original_data.copy()  # Copy original data to simulate hack
-    hack_result = simulate_hack(original_data_copy)
+    hack_data, hack_result = simulate_hack(hack_data)
     st.write(hack_result)
     st.write("Updated Genetic Data (After Hack Attempt):")
-    st.write(hack_result)
+    st.write(hack_data)
 
 # Step 8: Apply Blockchain and Encryption
+blockchain = Blockchain()  # Re-initialize blockchain to ensure fresh start
 if st.button("Apply Blockchain & Encryption"):
     # Apply blockchain encryption to the original data
-    blockchain = Blockchain()  # Re-initialize blockchain to ensure fresh start
     for index, row in original_data.iterrows():
         block = blockchain.create_block(previous_hash=blockchain.chain[-1]['hash'])
         blockchain.add_data_to_block(block['index'] - 1, row['Genetic_Sequence'])
@@ -91,8 +92,7 @@ if st.button("Apply Blockchain & Encryption"):
 # Step 9: Simulate Hack Again (After Blockchain)
 if st.button("Simulate Hack Again (After Blockchain)"):
     # Attempt to simulate the hack again
-    original_data_copy = original_data.copy()  # Copy original data to simulate hack
-    hack_result = simulate_hack(original_data_copy)
+    hack_data, hack_result = simulate_hack(hack_data)
     st.write(hack_result)
     
     # Attempt to validate with blockchain
