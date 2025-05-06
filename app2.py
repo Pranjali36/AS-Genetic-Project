@@ -2,90 +2,112 @@ import streamlit as st
 import pandas as pd
 import hashlib
 import base64
-import random
+import copy
 
-st.title("🔐 App 2: Genetic Data Protection Using Blockchain & Encryption")
-
-# Step 1: Sample Genetic Data (same as App1)
-def generate_sequence(length=10):
-    return ''.join(random.choices('ATCG', k=length))
-
-data = {
-    'Person_ID': [f'P{i+1}' for i in range(10)],
-    'Genetic_Sequence': [generate_sequence() for _ in range(10)],
-}
-df = pd.DataFrame(data)
-st.subheader("Step 1: Original Genetic Data")
-st.dataframe(df)
-
-# Step 2: Encryption function
+# --- Utility Functions ---
 def xor_encrypt(data, key=123):
-    return ''.join(chr(ord(c) ^ key) for c in data)
+    return ''.join(chr(ord(char) ^ key) for char in data)
 
-# Step 3: Blockchain structure
+def hash_block(index, previous_hash, data):
+    block_string = f"{index}{previous_hash}{data}"
+    return hashlib.sha256(block_string.encode()).hexdigest()
+
+# --- Blockchain Class ---
 class Blockchain:
     def __init__(self):
         self.chain = []
-        self.create_block(data="INITIAL_BLOCK")
+        self.create_genesis_block()
 
-    def create_block(self, data):
-        previous_hash = self.chain[-1]['hash'] if self.chain else '0'
+    def create_genesis_block(self):
+        genesis_block = {
+            'index': 0,
+            'previous_hash': '0',
+            'data': 'INITIAL_BLOCK',
+            'hash': hash_block(0, '0', 'INITIAL_BLOCK')
+        }
+        self.chain.append(genesis_block)
+
+    def add_block(self, data):
+        index = len(self.chain)
+        previous_hash = self.chain[-1]['hash']
+        encrypted_data = base64.b64encode(xor_encrypt(data).encode()).decode()
+        block_hash = hash_block(index, previous_hash, encrypted_data)
         block = {
-            'index': len(self.chain),
-            'data': data,
+            'index': index,
             'previous_hash': previous_hash,
-            'hash': self.hash_block(data, previous_hash)
+            'data': encrypted_data,
+            'hash': block_hash
         }
         self.chain.append(block)
 
-    def hash_block(self, data, previous_hash):
-        raw = str(data) + previous_hash
-        return hashlib.sha256(raw.encode()).hexdigest()
+    def is_chain_valid(self):
+        for i in range(1, len(self.chain)):
+            prev = self.chain[i - 1]
+            curr = self.chain[i]
+            recalculated_hash = hash_block(curr['index'], curr['previous_hash'], curr['data'])
+            if curr['hash'] != recalculated_hash or curr['previous_hash'] != prev['hash']:
+                return False
+        return True
 
-# Step 4: Encrypt and add each row to blockchain
-blockchain = Blockchain()
-encrypted_data = []
+# --- App UI ---
+st.title("App 2: Encryption and Blockchain Secured Genetic Data")
 
-for _, row in df.iterrows():
-    encrypted_seq = xor_encrypt(row['Genetic_Sequence'])
-    encoded = base64.b64encode(encrypted_seq.encode()).decode()
-    encrypted_data.append(encoded)
-    blockchain.create_block(encoded)
+# Step 1: Generate Dummy Data
+df = pd.DataFrame({
+    'Name': [f'Person {i}' for i in range(10)],
+    'Age': [30 + i for i in range(10)],
+    'Gender': ['M', 'F'] * 5,
+    'Genetic_Sequence': [f"ATGCGA{i}" for i in range(10)]
+})
 
-st.subheader("Step 2: Blockchain with Encrypted Genetic Data")
-block_data = pd.DataFrame([{
-    'Block Index': blk['index'],
-    'Encrypted Data': blk['data'],
-    'Hash': blk['hash']
-} for blk in blockchain.chain])
-st.dataframe(block_data)
+if 'blockchain' not in st.session_state:
+    blockchain = Blockchain()
+    for seq in df['Genetic_Sequence']:
+        blockchain.add_block(seq)
+    st.session_state.blockchain = blockchain
+    st.session_state.original_chain = copy.deepcopy(blockchain.chain)
 
-# Step 5: Attempt to hack encrypted blockchain (should fail)
-if st.button("🚫 Attempt Hack on Secured Data"):
-    hacked_index = random.randint(0, len(blockchain.chain)-1)
+st.write("✅ Blockchain applied and genetic data encrypted & stored securely.")
 
-    if hacked_index == 0:
-        st.warning("Tampering Genesis Block skipped. Selecting another block.")
-        hacked_index = 1
+# Step 2: View Blockchain
+if st.button("Show Encrypted Blockchain Data"):
+    display_df = pd.DataFrame(st.session_state.blockchain.chain)
+    st.dataframe(display_df[['index', 'data', 'hash']])
 
-    original_hash = blockchain.chain[hacked_index]['hash']
-    blockchain.chain[hacked_index]['data'] = "HACKED_DATA"
-    blockchain.chain[hacked_index]['hash'] = blockchain.hash_block("HACKED_DATA", blockchain.chain[hacked_index]['previous_hash'])
+# Step 3: Attempt to Tamper Copy (not original)
+if st.button("Attempt Hack on Secured Data"):
+    tampered_chain = copy.deepcopy(st.session_state.blockchain.chain)
+    tampered_index = 5  # Let's try to tamper block 5
+    tampered_chain[tampered_index]['data'] = base64.b64encode("HACKED_SEQUENCE".encode()).decode()
+    
+    # Validate tampered chain against original
+    original = st.session_state.original_chain
+    status = []
+    for i in range(len(original)):
+        if i < len(tampered_chain):
+            is_same = tampered_chain[i]['data'] == original[i]['data'] and tampered_chain[i]['hash'] == original[i]['hash']
+        else:
+            is_same = False
+        status.append("✔️ Unchanged" if is_same else "❌ Tampered")
 
-    # Verify integrity
-    for i in range(1, len(blockchain.chain)):
-        expected_hash = blockchain.hash_block(
-            blockchain.chain[i]['data'], blockchain.chain[i]['previous_hash']
-        )
-        if blockchain.chain[i]['hash'] != expected_hash:
-            st.error("🔐 ALERT: Blockchain tampering detected! Unauthorized data change rejected.")
-            break
+    comp_df = pd.DataFrame({
+        'Index': [blk['index'] for blk in tampered_chain],
+        'Data': [blk['data'] for blk in tampered_chain],
+        'Hash': [blk['hash'] for blk in tampered_chain],
+        'Status': status
+    })
+
+    st.warning("⚠️ Hack Attempt Detected! The following blocks were verified:")
+    st.dataframe(comp_df)
+
+    if all(s == "✔️ Unchanged" for s in status):
+        st.success("✅ Blockchain verified: No tampering detected.")
     else:
-        st.success("✅ Blockchain is intact. Data remains secure.")
+        st.error("🔒 Alert: Blockchain data integrity violated! Tampering attempt identified.")
 
-    st.subheader("Final Blockchain State")
-    st.dataframe(pd.DataFrame([{
-        'Block Index': blk['index'],
-        'Encrypted Data': blk['data'],
-        'Hash': blk['hash']
-    } for blk in blockchain.chain]))
+# Final Note
+st.markdown("""
+---
+🔐 This demo shows that even if someone tries to alter data on a copy, the **original blockchain remains intact**. 
+Only GenBank admins with authority can access or approve sequence submissions.
+""")
