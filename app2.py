@@ -71,6 +71,7 @@ st.write(original_data)
 
 # Step 7: Simulate hack attempt
 hack_data = original_data.copy()  # Initial copy of original data
+hack_result = None
 if st.button("Simulate Hack Attempt"):
     hack_data, hack_result = simulate_hack(hack_data)
     st.write(hack_result)
@@ -91,11 +92,11 @@ if st.button("Apply Blockchain & Encryption"):
 
 # Step 9: Simulate Hack Again (After Blockchain)
 if st.button("Simulate Hack Again (After Blockchain)"):
-    # Attempt to simulate the hack again
+    # Simulate the hack again after blockchain application
     hack_data, hack_result = simulate_hack(hack_data)
     st.write(hack_result)
     
-    # Attempt to validate with blockchain
+    # Verify blockchain integrity after hack attempt
     st.write("Checking blockchain data integrity...")
     
     blockchain_integrity = True
