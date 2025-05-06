@@ -69,16 +69,20 @@ original_data = generate_dummy_data()
 st.subheader("Original Genetic Data")
 st.write(original_data)
 
+# Store the modified data (hack attempt) in a session state variable
+if 'hack_data' not in st.session_state:
+    st.session_state.hack_data = original_data.copy()
+
 # Step 7: Simulate hack attempt
-hack_data = original_data.copy()  # Initial copy of original data
 hack_result = None
 
 # Button to simulate hack attempt
 if st.button("Simulate Hack Attempt"):
-    hack_data, hack_result = simulate_hack(hack_data)
+    # Perform hack attempt (modify or delete)
+    st.session_state.hack_data, hack_result = simulate_hack(st.session_state.hack_data)
     st.write(hack_result)
     st.write("Updated Genetic Data (After Hack Attempt):")
-    st.write(hack_data)
+    st.write(st.session_state.hack_data)
 
 # Step 8: Apply Blockchain and Encryption
 blockchain = Blockchain()  # Re-initialize blockchain to ensure fresh start
@@ -97,7 +101,7 @@ if st.button("Apply Blockchain & Encryption"):
 # Step 9: Simulate Hack Again (After Blockchain)
 if blockchain_applied and st.button("Simulate Hack Again (After Blockchain)"):
     # Simulate the hack again after blockchain application
-    hack_data, hack_result = simulate_hack(hack_data)
+    st.session_state.hack_data, hack_result = simulate_hack(st.session_state.hack_data)
     st.write(hack_result)
     
     # Verify blockchain integrity after hack attempt
