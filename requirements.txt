@@ -1,3 +1,2 @@
 pandas
-streamlit==1.12.0
-hashlib
+streamlit==1.16.0
