@@ -111,7 +111,7 @@ for idx, (label, chain) in enumerate(servers.items()):
     with [col1, col2, col3][idx]:
         st.markdown(f"**{label}**")
         for block in chain:
-            bg_color = "#FFCDD2" if block.hash != original_blockchain[block.index].hash else colors[label]
+            bg_color = "#FFCDD2" if block.hash != original_chain[block.index].hash else colors[label]
             st.markdown(f"""
                 <div style="background-color: {bg_color}; padding: 10px; border-radius: 5px; margin-bottom: 10px;
                             font-family: monospace; max-width: 100%; word-wrap: break-word; overflow-wrap: break-word;">
