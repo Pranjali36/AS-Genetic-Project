@@ -77,18 +77,19 @@ for idx, (label, chain) in enumerate(servers.items()):
         st.markdown(f"**{label}**")
         for block in chain:
             bg_color = "#FFCDD2" if block.hash != original_blockchain[block.index].hash else colors[label]
-            st.markdown(f"""
-                <div style="background-color: {bg_color}; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
-                    <strong>Block #{block.index}</strong><br>
-                    <strong>Timestamp:</strong> {block.timestamp}<br>
-                    <strong>Metadata:</strong> {block.metadata}<br>
-                    <strong>Prev Hash:</strong> {block.previous_hash}<br>
-                    <strong>Hash:</strong> {block.hash}
-                </div>
-            """, unsafe_allow_html=True)
+           st.markdown(f"""
+    <div style="background-color: {bg_color}; padding: 10px; border-radius: 5px; margin-bottom: 10px;
+                font-family: monospace; max-width: 100%; word-wrap: break-word; overflow-wrap: break-word;">
+        <strong>Block #{block.index}</strong><br>
+        <strong>Timestamp:</strong> {block.timestamp}<br>
+        <strong>Metadata:</strong> {block.metadata}<br>
+        <strong>Prev Hash:</strong> <span style="word-break: break-all;">{block.previous_hash}</span><br>
+        <strong>Hash:</strong> <span style="word-break: break-all;">{block.hash}</span>
+    </div>
+""", unsafe_allow_html=True)
 
 # ---------------- SIMULATE HACK ----------------
-if st.button("🧨 Simulate Hack on Server 3"):
+if st.button("🧨 Simulate Hack "):
     hacked_chain = servers["Server 3"]
     block_to_hack = random.choice([1, 2])
     hacked_chain[block_to_hack].genetic_data = encrypt_data("Tampered DNA: HACKED999")
