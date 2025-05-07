@@ -102,21 +102,25 @@ if st.button("Apply Changes to Metadata"):
 
 # ========= Display All Chains ==========
 
-st.subheader("📦 Blockchain Overview")
-cols = st.columns(3)
-for i, (label, chain) in enumerate(servers.items()):
-    with cols[i]:
+st.subheader("🔗 Blockchain Status Across Servers")
+col1, col2, col3 = st.columns(3)
+servers = {"Server 1": server_1, "Server 2": server_2, "Server 3": server_3}
+colors = {"Server 1": "#E8F5E9", "Server 2": "#E3F2FD", "Server 3": "#FFF3E0"}
+
+for idx, (label, chain) in enumerate(servers.items()):
+    with [col1, col2, col3][idx]:
         st.markdown(f"**{label}**")
-        for blk in chain:
-            color = "#FFCDD2" if blk.hash != original_chain[blk.index].hash else colors[label]
+        for block in chain:
+            bg_color = "#FFCDD2" if block.hash != original_blockchain[block.index].hash else colors[label]
             st.markdown(f"""
-            <div style="background-color: {color}; padding:10px; border-radius:5px; margin-bottom:10px;">
-                <strong>Block #{blk.index}</strong><br>
-                <strong>Time:</strong> {blk.timestamp}<br>
-                <strong>Metadata:</strong> {blk.metadata}<br>
-                <strong>Prev Hash:</strong> {blk.previous_hash}<br>
-                <strong>Hash:</strong> {blk.hash}<br>
-            </div>
+                <div style="background-color: {bg_color}; padding: 10px; border-radius: 5px; margin-bottom: 10px;
+                            font-family: monospace; max-width: 100%; word-wrap: break-word; overflow-wrap: break-word;">
+                    <strong>Block #{block.index}</strong><br>
+                    <strong>Timestamp:</strong> {block.timestamp}<br>
+                    <strong>Metadata:</strong> {block.metadata}<br>
+                    <strong>Prev Hash:</strong> <span style="word-break: break-all;">{block.previous_hash}</span><br>
+                    <strong>Hash:</strong> <span style="word-break: break-all;">{block.hash}</span>
+                </div>
             """, unsafe_allow_html=True)
 
 # ========= Tamper Report ==========
