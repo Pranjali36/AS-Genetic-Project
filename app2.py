@@ -5,19 +5,32 @@ import time
 import pandas as pd
 from datetime import datetime
 
+# Simple encryption function
+# ----------------------------
+def encrypt_data(data):
+    return base64.b64encode(data.encode()).decode()
+
+def decrypt_data(encrypted_data):
+    try:
+        return base64.b64decode(encrypted_data.encode()).decode()
+    except Exception:
+        return "[Decryption Failed]"
+
+
 # ========== Block and Blockchain Setup ==========
 
 class Block:
-    def __init__(self, index, data, previous_hash):
+    def __init__(self, index, timestamp, metadata, genetic_data, previous_hash):
         self.index = index
-        self.timestamp = time.time()
-        self.data = data
+        self.timestamp = timestamp
+        self.metadata = metadata  # Non-sensitive info
+        self.genetic_data = encrypt_data(genetic_data)
         self.previous_hash = previous_hash
         self.hash = self.calculate_hash()
 
     def calculate_hash(self):
-        return hashlib.sha256((str(self.index) + str(self.timestamp) +
-                               str(self.data) + str(self.previous_hash)).encode()).hexdigest()
+        block_content = f"{self.index}{self.timestamp}{self.metadata}{self.genetic_data}{self.previous_hash}"
+        return hashlib.sha256(block_content.encode()).hexdigest()
 
     def to_dict(self):
         return {
@@ -28,22 +41,32 @@ class Block:
             'Previous Hash': self.previous_hash[:10] + "..."
         }
 
-def create_genetic_blockchain():
-    chain = []
-    initial_block = Block(0, "Encrypted DNA: ATCG123", "0")
-    chain.append(initial_block)
-    for i in range(1, 3):  # 3 blocks total for simplicity
-        data = f"Encrypted DNA: ATCG{random.randint(100,999)}"
-        chain.append(Block(i, data, chain[i-1].hash))
-    return chain
+def create_blockchain():
+    blockchain = []
+    metadata_list = [
+        {"Patient ID": "P001", "Test Date": "2023-08-01", "Sample Code": "S1"},
+        {"Patient ID": "P002", "Test Date": "2023-08-02", "Sample Code": "S2"},
+        {"Patient ID": "P003", "Test Date": "2023-08-03", "Sample Code": "S3"}
+    ]
+    dna_list = ["ATGCTACGATCG", "GGGCTAGCTTAC", "TACGGGCTAGCA"]
+
+    genesis_block = Block(0, str(datetime.datetime.now()), metadata_list[0], dna_list[0], "0")
+    blockchain.append(genesis_block)
+
+    for i in range(1, 3):
+        prev_hash = blockchain[i - 1].hash
+        new_block = Block(i, str(datetime.datetime.now()), metadata_list[i], dna_list[i], prev_hash)
+        blockchain.append(new_block)
+
+    return blockchain
 
 # ========== Blockchain Copies ==========
 
-servers = {
-    "Server 1": create_genetic_blockchain(),
-    "Server 2": create_genetic_blockchain(),
-    "Server 3": create_genetic_blockchain()
-}
+
+original_blockchain = create_blockchain()
+server_1 = copy.deepcopy(original_blockchain)
+server_2 = copy.deepcopy(original_blockchain)
+server_3 = copy.deepcopy(original_blockchain)
 
 if 'tamper_log' not in st.session_state:
     st.session_state.tamper_log = []
@@ -51,36 +74,36 @@ if 'tamper_log' not in st.session_state:
 
 # ========== Streamlit UI ==========
 
+st.set_page_config(page_title="GeneBlock: Secure Genetic Storage", layout="wide")
 st.title("🔒 GeneBlock: Blockchain Security for Genetic Data")
 st.markdown("This system uses **blockchain and encryption** to secure sensitive genetic data.\n"
             "Multiple servers store redundant chains. Any tampering attempt is instantly detected.")
 
 # ========== Display Blockchain Chains ==========
 
-def display_blockchain(chain, title):
-    st.subheader(title)
-    for block in chain:
-        if verify_block(block, chain):
-            st.success(f"Block {block.index} | Hash: {block.hash[:10]}...")
-        else:
-            st.error(f"Tampered Block {block.index} | Hash: {block.hash[:10]}...")
-        st.code(block.to_dict())
+st.subheader("🔗 Blockchain Status Across Servers")
+col1, col2, col3 = st.columns(3)
+servers = {"Server 1": server_1, "Server 2": server_2, "Server 3": server_3}
+colors = {"Server 1": "#E8F5E9", "Server 2": "#E3F2FD", "Server 3": "#FFF3E0"}
 
-def verify_block(block, chain):
-    if block.index == 0:
-        return block.hash == block.calculate_hash()
-    prev_block = chain[block.index - 1]
-    return (block.previous_hash == prev_block.hash and
-            block.hash == block.calculate_hash())
-
-# Display all servers
-for name, chain in servers.items():
-    with st.expander(f"{name} Blockchain"):
-        display_blockchain(chain, name)
-
+for idx, (label, chain) in enumerate(servers.items()):
+    with [col1, col2, col3][idx]:
+        st.markdown(f"**{label}**")
+        for block in chain:
+            bg_color = "#FFCDD2" if block.hash != original_blockchain[block.index].hash else colors[label]
+            st.markdown(f"""
+                <div style="background-color: {bg_color}; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                    <strong>Block #{block.index}</strong><br>
+                    <strong>Timestamp:</strong> {block.timestamp}<br>
+                    <strong>Metadata:</strong> {block.metadata}<br>
+                    <strong>Prev Hash:</strong> {block.previous_hash}...<br>
+                    <strong>Hash:</strong> {block.hash}...
+                </div>
+            """, unsafe_allow_html=True)
+            
 # ========== Simulate Hack Button ==========
 
-if st.button("💀 Simulate Hack on Server 3"):
+if st.button("Simulate Hack"):
     hacked_chain = servers["Server 3"]
     block_to_hack = random.choice([1, 2])
     hacked_chain[block_to_hack].data = "Tampered DNA: HACKED999"
@@ -104,13 +127,13 @@ if st.button("📄 View Tamper Report"):
 
 # ========== Decryption ==========
 
-st.subheader("🔓 Decrypt Genetic Data (Admin Only)")
+st.subheader("🔐 Decryption Access")
 admin_token = st.text_input("Enter access token to decrypt records:", type="password")
 
-if st.button("Decrypt Genetic Data"):
+if st.button("🔓 Admin Decrypt Data"):
     if admin_token == "ADMIN123":
-        decrypted = [block.data.replace("Encrypted", "Decrypted") for block in servers["Server 1"]]
-        for i, data in enumerate(decrypted):
-            st.info(f"Record {i+1}: {data}")
+        for i, block in enumerate(original_blockchain):
+            decrypted = decrypt_data(block.genetic_data)
+            st.success(f"✅ Decrypted Block #{i} DNA: {decrypted}")
     else:
-        st.error("❌ Invalid admin token. Access denied.")
+        st.error("❌ Invalid token! Only GenBank admin can decrypt data.")
