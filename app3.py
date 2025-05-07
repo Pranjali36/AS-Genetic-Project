@@ -108,8 +108,7 @@ if st.button("Apply Changes to Metadata"):
         })
         st.error(f"⚠️ Block #{block_index} on {server_selected} tampered manually!")
 
-# ========= Display All Chains ==========
-
+# ========== Display Blockchain Chains ==========
 st.subheader("🔗 Blockchain Status Across Servers")
 col1, col2, col3 = st.columns(3)
 servers = {"Server 1": server_1, "Server 2": server_2, "Server 3": server_3}
@@ -118,12 +117,9 @@ colors = {"Server 1": "#E8F5E9", "Server 2": "#E3F2FD", "Server 3": "#FFF3E0"}
 for idx, (label, chain) in enumerate(servers.items()):
     with [col1, col2, col3][idx]:
         st.markdown(f"**{label}**")
-         for i, block in enumerate(chain):
-            # Compare hash of each block with original
-            tampered = block.hash != original_chain[i].hash
-            bg_color = "#FFCDD2" if tampered else colors[label]  # Red if tampered, else light color
-            tamper_tag = "🛑 TAMPERED" if tampered else ""
-             
+        for i, block in enumerate(chain):
+            original_hash = original_blockchain[i].hash
+            bg_color = "#FFCDD2" if block.hash != original_hash else colors[label]
             st.markdown(f"""
                 <div style="background-color: {bg_color}; padding: 10px; border-radius: 5px; margin-bottom: 10px;
                             font-family: monospace; max-width: 100%; word-wrap: break-word; overflow-wrap: break-word;">
