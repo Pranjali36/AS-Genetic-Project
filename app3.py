@@ -87,10 +87,18 @@ new_sample_code = st.text_input("Edit Sample Code", value=block_to_edit.metadata
 
 # Button to apply changes
 if st.button("Apply Changes to Metadata"):
+    # Step 1: Edit metadata
     block_to_edit.metadata["Patient ID"] = new_patient_id
     block_to_edit.metadata["Sample Code"] = new_sample_code
     block_to_edit.hash = block_to_edit.calculate_hash()
 
+    # Step 2: Propagate changes forward
+    chain = servers[server_selected]
+    for i in range(block_index + 1, len(chain)):
+        chain[i].previous_hash = chain[i - 1].hash
+        chain[i].hash = chain[i].calculate_hash()
+
+    # Step 3: Log tampering if detected
     if block_to_edit.hash != original_chain[block_index].hash:
         st.session_state.tamper_log.append({
             "Server": server_selected,
@@ -110,8 +118,12 @@ colors = {"Server 1": "#E8F5E9", "Server 2": "#E3F2FD", "Server 3": "#FFF3E0"}
 for idx, (label, chain) in enumerate(servers.items()):
     with [col1, col2, col3][idx]:
         st.markdown(f"**{label}**")
-        for block in chain:
-            bg_color = "#FFCDD2" if block.hash != original_chain[block.index].hash else colors[label]
+         for i, block in enumerate(chain):
+            # Compare hash of each block with original
+            tampered = block.hash != original_chain[i].hash
+            bg_color = "#FFCDD2" if tampered else colors[label]  # Red if tampered, else light color
+            tamper_tag = "🛑 TAMPERED" if tampered else ""
+             
             st.markdown(f"""
                 <div style="background-color: {bg_color}; padding: 10px; border-radius: 5px; margin-bottom: 10px;
                             font-family: monospace; max-width: 100%; word-wrap: break-word; overflow-wrap: break-word;">
