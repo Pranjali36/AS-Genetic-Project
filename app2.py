@@ -44,7 +44,10 @@ servers = {
     "Server 2": create_genetic_blockchain(),
     "Server 3": create_genetic_blockchain()
 }
-tamper_log = []
+
+if 'tamper_log' not in st.session_state:
+    st.session_state.tamper_log = []
+
 
 # ========== Streamlit UI ==========
 
@@ -82,7 +85,7 @@ if st.button("💀 Simulate Hack on Server 3"):
     block_to_hack = random.choice([1, 2])
     hacked_chain[block_to_hack].data = "Tampered DNA: HACKED999"
     hacked_chain[block_to_hack].hash = hacked_chain[block_to_hack].calculate_hash()
-    tamper_log.append({
+    st.session_state.tamper_log.append({
         'Server': "Server 3",
         'Block': block_to_hack,
         'Time': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -92,8 +95,8 @@ if st.button("💀 Simulate Hack on Server 3"):
 # ========== Tamper Report ==========
 
 if st.button("📄 View Tamper Report"):
-    if tamper_log:
-        df = pd.DataFrame(tamper_log)
+    if st.session_state.tamper_log:
+        df = pd.DataFrame(st.session_state.tamper_log)
         st.warning("🚨 Tampering Detected! See Details Below:")
         st.dataframe(df)
     else:
