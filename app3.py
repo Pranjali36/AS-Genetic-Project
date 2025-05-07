@@ -67,12 +67,12 @@ if 'tamper_log' not in st.session_state:
 # ========= Streamlit UI ==========
 
 st.set_page_config(page_title="GeneBlock App 3", layout="wide")
-st.title("🛡️ GeneBlock - App 3: Real-Time Tamper Detection")
-st.markdown("Modify metadata manually to simulate a real-time tamper attempt on a blockchain server.")
+st.title("🛡️ GeneBlock - App: Real-Time Tamper Detection")
+#st.markdown("Modify metadata manually to simulate a real-time tamper attempt on a blockchain server.")
 
 # ========= Tamper Input Section ==========
 
-st.subheader("✏️ Simulate Manual Tampering")
+st.subheader("✏ Simulate Manual Tampering")
 colA, colB = st.columns(2)
 with colA:
     server_selected = st.selectbox("Choose Server:", ["Server 1", "Server 2", "Server 3"])
