@@ -74,7 +74,7 @@ target_block = servers[server_to_edit][block_index]
 new_pid = st.text_input("New Patient ID", value=target_block.metadata["Patient ID"])
 new_sample = st.text_input("New Sample Code", value=target_block.metadata["Sample Code"])
 
-if st.button("✏️ Apply Metadata Change"):
+if st.button("✏Simulate Hack"):
     target_block.metadata["Patient ID"] = new_pid
     target_block.metadata["Sample Code"] = new_sample
 
@@ -89,6 +89,7 @@ if st.button("✏️ Apply Metadata Change"):
         "Server": server_to_edit,
         "Block": block_index,
         "Time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        "Note": "Metadata manually tampered."
     })
     st.warning(f"⚠️ Block #{block_index} tampered on {server_to_edit}!")
 
@@ -119,8 +120,8 @@ for i, (label, chain) in enumerate(servers.items()):
                     <strong>Block #{blk.index}</strong><br>
                     <strong>Timestamp:</strong> {blk.timestamp}<br>
                     <strong>Metadata:</strong> {blk.metadata}<br>
-                    <strong>Prev Hash:</strong> {blk.previous_hash[:10]}...<br>
-                    <strong>Hash:</strong> {blk.hash[:10]}...
+                    <strong>Prev Hash:</strong> {blk.previous_hash}...<br>
+                    <strong>Hash:</strong> {blk.hash}...
                 </div>
             """, unsafe_allow_html=True)
 
