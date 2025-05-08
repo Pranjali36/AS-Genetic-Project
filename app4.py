@@ -128,7 +128,7 @@ for idx, (label, chain) in enumerate(servers.items()):
             st.markdown(f"""
                 <div style="
                     background-color: {bg_color}; 
-                    padding: 20px; 
+                    padding: 18px; 
                     border-radius: 5px; 
                     margin-bottom: 15px;
                     word-wrap: break-word;
