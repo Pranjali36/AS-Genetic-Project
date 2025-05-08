@@ -30,6 +30,15 @@ class Block:
         block_content = f"{self.index}{self.timestamp}{self.metadata}{self.genetic_data}{self.previous_hash}"
         return hashlib.sha256(block_content.encode()).hexdigest()
 
+def is_chain_valid_until(chain, index):
+    """
+    Returns False if any block at or before the given index is tampered.
+    """
+    for i in range(index + 1):
+        if chain[i].hash != original_chain[i].hash:
+            return False
+    return True
+
 # ==== Create Blockchain ====
 def create_blockchain():
     blockchain = []
@@ -59,39 +68,47 @@ if 'tamper_log' not in st.session_state:
 
 # ==== UI Setup ====
 st.set_page_config(layout="wide")
-st.title("🧬 GeneBlock App 4: Blockchain + Network Consensus")
+st.title("🧬 GeneBlock App: A Blockchain Network")
 st.markdown("Multiple server copies, admin-only access, real-time tamper detection, and **majority-based network validation**.")
 
-# ==== Manual Tampering ====
-st.subheader("🛠️ Tamper Block Metadata")
-col1, col2 = st.columns(2)
-with col1:
-    server_to_edit = st.selectbox("Select Server:", ["Server 1", "Server 2", "Server 3"])
-with col2:
-    block_index = st.selectbox("Select Block Index to Edit:", [0, 1, 2])
+# ========= Manual Tampering Section with Chain Break Protection ==========
 
-target_block = servers[server_to_edit][block_index]
-new_pid = st.text_input("New Patient ID", value=target_block.metadata["Patient ID"])
-new_sample = st.text_input("New Sample Code", value=target_block.metadata["Sample Code"])
+st.subheader("✏ Simulate Manual Tampering")
+colA, colB = st.columns(2)
+with colA:
+    server_selected = st.selectbox("Choose Server:", ["Server 1", "Server 2", "Server 3"])
+with colB:
+    block_index = st.selectbox("Choose Block to Edit (Index):", [0, 1, 2])
 
-if st.button("✏Simulate Hack"):
-    target_block.metadata["Patient ID"] = new_pid
-    target_block.metadata["Sample Code"] = new_sample
+block_to_edit = servers[server_selected][block_index]
 
-    # Update this and all subsequent hashes
-    chain = servers[server_to_edit]
-    for i in range(block_index, len(chain)):
-        prev_hash = chain[i-1].hash if i > 0 else "0"
-        chain[i].previous_hash = prev_hash
-        chain[i].hash = chain[i].calculate_hash()
+# Check if block is valid before allowing edit
+if not is_chain_valid_until(servers[server_selected], block_index - 1):
+    st.error(f"⛔ Block #{block_index} or earlier has been tampered. Editing is disabled.")
+else:
+    # Editable metadata fields
+    new_patient_id = st.text_input("Edit Patient ID", value=block_to_edit.metadata["Patient ID"])
+    new_sample_code = st.text_input("Edit Sample Code", value=block_to_edit.metadata["Sample Code"])
 
-    st.session_state.tamper_log.append({
-        "Server": server_to_edit,
-        "Block": block_index,
-        "Time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "Note": "Metadata manually tampered."
-    })
-    st.warning(f"⚠️ Block #{block_index} tampered on {server_to_edit}!")
+    if st.button("Apply Changes to Metadata"):
+        block_to_edit.metadata["Patient ID"] = new_patient_id
+        block_to_edit.metadata["Sample Code"] = new_sample_code
+        block_to_edit.hash = block_to_edit.calculate_hash()
+
+        # Propagate changes to downstream blocks
+        chain = servers[server_selected]
+        for i in range(block_index + 1, len(chain)):
+            chain[i].previous_hash = chain[i - 1].hash
+            chain[i].hash = chain[i].calculate_hash()
+
+        if block_to_edit.hash != original_chain[block_index].hash:
+            st.session_state.tamper_log.append({
+                "Server": server_selected,
+                "Block": block_index,
+                "Time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "Note": "Metadata manually tampered."
+            })
+            st.error(f"⚠️ Block #{block_index} on {server_selected} tampered manually!")
 
 # ==== Consensus Checking ====
 def majority_hashes(index):
