@@ -128,13 +128,13 @@ for idx, (label, chain) in enumerate(servers.items()):
             st.markdown(f"""
                 <div style="
                     background-color: {bg_color}; 
-                    padding: 18px; 
+                    padding: 17px; 
                     border-radius: 5px; 
                     margin-bottom: 15px;
                     word-wrap: break-word;
                     overflow-wrap: break-word;
                     white-space: normal;
-                    font-size: 14px;">
+                    font-size: 16px;">
                     <strong>Block #{block.index}</strong><br>
                     <strong>Timestamp:</strong> {block.timestamp}<br>
                     <strong>Metadata:</strong> {block.metadata}<br>
