@@ -134,7 +134,7 @@ for idx, (label, chain) in enumerate(servers.items()):
                     word-wrap: break-word;
                     overflow-wrap: break-word;
                     white-space: normal;
-                    font-size: 16px;">
+                    font-size: 14px;">
                     <strong>Block #{block.index}</strong><br>
                     <strong>Timestamp:</strong> {block.timestamp}<br>
                     <strong>Metadata:</strong> {block.metadata}<br>
