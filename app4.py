@@ -88,7 +88,7 @@ if st.button("✏Simulate Hack"):
     st.session_state.tamper_log.append({
         "Server": server_to_edit,
         "Block": block_index,
-        "Time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        "Time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "Note": "Metadata manually tampered."
     })
     st.warning(f"⚠️ Block #{block_index} tampered on {server_to_edit}!")
