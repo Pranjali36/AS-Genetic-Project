@@ -105,23 +105,41 @@ def is_chain_valid(server_chain):
     return True
 
 # ==== Display Chains with Consensus Status ====
-st.subheader("🔗 Blockchain Status Across Network")
-cols = st.columns(3)
-color_map = {"valid": "#E8F5E9", "invalid": "#FFCDD2"}
+st.subheader("🔗 Blockchain Status Across Servers")
 
-for i, (label, chain) in enumerate(servers.items()):
-    status = "valid" if is_chain_valid(chain) else "invalid"
-    with cols[i]:
-        st.markdown(f"**{label}** - {'✅ Accepted' if status == 'valid' else '❌ Rejected'}")
-        for blk in chain:
-            bg = color_map[status]
+col1, col2, col3 = st.columns(3)
+server_colors = {
+    "Server 1": "#E8F5E9",  # light green
+    "Server 2": "#E3F2FD",  # light blue
+    "Server 3": "#FFF3E0",  # light orange
+}
+
+for idx, (label, chain) in enumerate(servers.items()):
+    with [col1, col2, col3][idx]:
+        st.markdown(f"**{label}**")
+        for i, block in enumerate(chain):
+            # Check if this block is tampered compared to original
+            original_hash = original_chain[i].hash
+            if block.hash != original_hash:
+                bg_color = "#FFCDD2"  # red for tampered or affected block
+            else:
+                bg_color = server_colors[label]
+
             st.markdown(f"""
-                <div style="background-color:{bg}; padding:10px; border-radius:5px; margin-bottom:10px">
-                    <strong>Block #{blk.index}</strong><br>
-                    <strong>Timestamp:</strong> {blk.timestamp}<br>
-                    <strong>Metadata:</strong> {blk.metadata}<br>
-                    <strong>Prev Hash:</strong> {blk.previous_hash}...<br>
-                    <strong>Hash:</strong> {blk.hash}...
+                <div style="
+                    background-color: {bg_color}; 
+                    padding: 10px; 
+                    border-radius: 5px; 
+                    margin-bottom: 10px;
+                    word-wrap: break-word;
+                    overflow-wrap: break-word;
+                    white-space: normal;
+                    font-size: 14px;">
+                    <strong>Block #{block.index}</strong><br>
+                    <strong>Timestamp:</strong> {block.timestamp}<br>
+                    <strong>Metadata:</strong> {block.metadata}<br>
+                    <strong>Prev Hash:</strong> {block.previous_hash}...<br>
+                    <strong>Hash:</strong> {block.hash}...
                 </div>
             """, unsafe_allow_html=True)
 
