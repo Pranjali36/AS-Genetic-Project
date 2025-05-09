@@ -12,7 +12,7 @@ class Block:
         self.hash = self.compute_hash()
 
     def compute_hash(self):
-        return str(hash((self.index, str(self.metadata), self.genetic_data, self.previous_hash)))
+        return str(hash((self.index, str(sorted(self.metadata.items())), self.genetic_data, self.previous_hash)))
 
 # Sample realistic metadata and DNA data
 def create_realistic_blocks():
