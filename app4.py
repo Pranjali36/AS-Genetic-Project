@@ -101,7 +101,7 @@ target_block = servers[server_to_edit][block_index]
 new_pid = st.text_input("New Patient ID", value=target_block.metadata["Patient ID"])
 new_sample = st.text_input("New Sample Code", value=target_block.metadata["Sample Code"])
 
-if st.button("✏Simulate Hack"):
+if st.button("⚠️Simulate Hack"):
     target_block.metadata["Patient ID"] = new_pid
     target_block.metadata["Sample Code"] = new_sample
 
