@@ -44,8 +44,7 @@ A report is generated that shows which fields and servers were affected.
 🎥 Concept Walkthrough
 Watch this short demo to understand blockchain and encryption:
 
-Reference ▶️ YouTube Video: GeneBlock - Blockchain & Encryption for Genetic Data
-https://youtu.be/_160oMzblY8?si=eMMMjZyWmvJlU8eN
+Reference ▶️ https://youtu.be/_160oMzblY8?si=eMMMjZyWmvJlU8eN
 
 🧪 App Demonstrations
 
