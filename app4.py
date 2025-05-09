@@ -50,7 +50,7 @@ def create_blockchain():
         "Trait": "HIV resistance"
     },
     {
-        "Patient ID": "P002"
+        "Patient ID": "P002",
         "SNP_ID": "rs3365478",
         "Chromosome": "5",
         "Position": "148206337",
