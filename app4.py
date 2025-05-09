@@ -163,7 +163,7 @@ if "admin_key" not in st.session_state:
 if st.button("🔑 Generate Admin Access Key"):
     import uuid
     st.session_state.admin_key = str(uuid.uuid4())
-    st.success("Admin Key Generated!")
+    #st.success("Admin Key Generated!")
     #st.code(f"Share this secure key with authorized personnel only:\n\n{st.session_state.admin_key}")
     with st.expander("📥 Admin Key (Copy & Share Securely)", expanded=False):
     st.text(f"{st.session_state.admin_key}")
