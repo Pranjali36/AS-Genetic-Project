@@ -174,7 +174,7 @@ st.subheader("📄 Tamper Report")
 if st.button("🕵️ View Tamper Report"):
     if st.session_state.tamper_log:
         st.dataframe(pd.DataFrame(st.session_state.tamper_log))
-        st.table(tamper_report.style.set_properties(**{'border-color': 'black', 'border-width': '2px'}))
+        st.table(tamper_log.style.set_properties(**{'border-color': 'black', 'border-width': '2px'}))
     else:
         st.success("✅ No tampering recorded.")
 
