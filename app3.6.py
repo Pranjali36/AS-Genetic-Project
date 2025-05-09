@@ -184,7 +184,7 @@ st.subheader("🔐 Admin Decryption Panel")
 admin_token = st.text_input("Enter Admin Password (Only for Admin)", type="password")
 
 # Show Admin buttons only if correct password entered
-if admin_token == "ADMIN123":
+if admin_token == "Pranjali123":
     if st.button("🔓 Decrypt All Genetic Data (Admin Only)"):
         for i, block in enumerate(original_chain):
             decrypted = decrypt_data(block.genetic_data)
