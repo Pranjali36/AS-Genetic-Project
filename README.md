@@ -93,5 +93,5 @@ Python,
 Streamlit,
 Simulated Blockchain & Encryption Logic
 
-👥 Developed by- Pranjali Thakur, student at University of Geneva
+👥 Developed by- Pranjali Thakur, student at University of Geneva,
 Developed as part of an academic submission on Advanced Security
