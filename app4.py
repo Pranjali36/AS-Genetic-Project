@@ -170,20 +170,10 @@ for idx, (label, chain) in enumerate(servers.items()):
             """, unsafe_allow_html=True)
 
 # ==== View Tamper Log ====
-st.subheader("📄 Tamper Report")
-
-if st.button("🕵️ View Tamper Report"):
-  st.subheader("⚠️ Tamper Detection Report")
-# Simulated tamper report
-tamper_report = pd.DataFrame({
-    "Server": ["Server A", "Server B", "Server C"],
-    "Status": ["Valid", "Tampered", "Valid"]
-})
-st.table(tamper_report.style.set_properties(**{'border-color': 'black', 'border-width': '2px'}))
-
-        # Display the styled table
-        st.markdown(styled_html, unsafe_allow_html=True)
-
+if st.button("📄View Tamper Report"):
+    if st.session_state.tamper_log:
+        st.dataframe(pd.DataFrame(st.session_state.tamper_log))
+        st.table(tamper_log.style.set_properties(**{'border-color': 'black', 'border-width': '2px'}))
     else:
         st.success("✅ No tampering recorded.")
         
