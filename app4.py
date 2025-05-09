@@ -170,27 +170,23 @@ for idx, (label, chain) in enumerate(servers.items()):
             """, unsafe_allow_html=True)
 
 # ==== View Tamper Log ====
-st.subheader("📄 Tamper Report")
 
-if st.button("🕵️ View Tamper Report"):
+if st.button("📄 View Tamper Report"):
     if st.session_state.tamper_log:
         # Create DataFrame for tamper log
         tamper_df = pd.DataFrame(st.session_state.tamper_log)
 
         # Style the table: Adding border and custom style to make it visually appealing
-        styled_tamper_df = tamper_df.style.set_properties(
+       st.dataframe(tamper_df.style.set_properties(
             **{
-                'border-color': 'orange', 
-                'border-width': '2px',
+                'border': '1px solid black',
                 'text-align': 'center',  # Center align text
-                'padding': '10px'  # Add padding to cells
+                'padding': '10px',  # Add padding to cells
             }
-        ).set_table_styles(
-            [{'selector': 'thead th', 'props': [('background-color', '#f4f4f4'), ('color', '#333'), ('font-weight', 'bold')]}]  # Style header
-        )
-
-        # Display styled dataframe
-        st.dataframe(styled_tamper_df)
+        ).set_table_styles([
+            {'selector': 'thead th', 
+             'props': [('background-color', '#f4f4f4'), ('color', '#333'), ('font-weight', 'bold')]}
+        ]))
 
     else:
         st.success("✅ No tampering recorded.")
