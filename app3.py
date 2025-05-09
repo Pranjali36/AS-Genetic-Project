@@ -146,7 +146,7 @@ if st.button("📑 View Tamper Report"):
 st.subheader("🔐 Admin Decryption Panel")
 token = st.text_input("Enter Admin Token to Decrypt DNA", type="password")
 if st.button("🔓 Decrypt All Genetic Data"):
-    if token == "ADMIN123":
+    if token == "Pranjali123":
         for i, block in enumerate(original_chain):
             decrypted = decrypt_data(block.genetic_data)
             st.success(f"Decrypted Block #{i} DNA: {decrypted}")
