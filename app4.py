@@ -170,13 +170,44 @@ for idx, (label, chain) in enumerate(servers.items()):
             """, unsafe_allow_html=True)
 
 # ==== View Tamper Log ====
+st.subheader("📄 Tamper Report")
 
-if st.button("📄 View Tamper Report"):
+if st.button("🕵️ View Tamper Report"):
     if st.session_state.tamper_log:
         # Create DataFrame for tamper log
-        tamper_report = pd.DataFrame(st.session_state.tamper_log)
-        # Apply basic styling using st.dataframe (limited styling)
-       st.table(tamper_report.style.set_properties(**{'border-color': 'black', 'border-width': '2px'}))
+        tamper_df = pd.DataFrame(st.session_state.tamper_log)
+
+        # Convert DataFrame to HTML for custom styling
+        table_html = tamper_df.to_html(index=False, escape=False)
+
+        # Style the HTML table
+        styled_html = f"""
+        <style>
+            table {{
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }}
+            th, td {{
+                border: 2px solid black;
+                text-align: center;
+                padding: 10px;
+            }}
+            th {{
+                background-color: #f4f4f4;
+                color: #333;
+                font-weight: bold;
+            }}
+            tr:nth-child(even) {{
+                background-color: #f9f9f9;
+            }}
+        </style>
+        {table_html}
+        """
+
+        # Display the styled table
+        st.markdown(styled_html, unsafe_allow_html=True)
+
     else:
         st.success("✅ No tampering recorded.")
         
