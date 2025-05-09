@@ -180,7 +180,7 @@ if st.button("🕵️ View Tamper Report"):
         # Style the table: Adding border and custom style to make it visually appealing
         styled_tamper_df = tamper_df.style.set_properties(
             **{
-                'border-color': 'black', 
+                'border-color': 'orange', 
                 'border-width': '2px',
                 'text-align': 'center',  # Center align text
                 'padding': '10px'  # Add padding to cells
