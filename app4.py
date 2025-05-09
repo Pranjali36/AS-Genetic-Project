@@ -7,14 +7,16 @@ from datetime import datetime
 import pandas as pd
 
 # ==== Encryption / Decryption ====
-def encrypt_data(data):
-    return base64.b64encode(data.encode()).decode()
+def encrypt_data(data_dict):
+    encoded = base64.b64encode(str(data_dict).encode("utf-8")).decode("utf-8")
+    return encoded
 
-def decrypt_data(encrypted_data):
+def decrypt_data(encrypted_str):
     try:
-        return base64.b64decode(encrypted_data.encode()).decode()
+        decoded = base64.b64decode(encrypted_str.encode("utf-8")).decode("utf-8")
+        return decoded
     except Exception:
-        return "[Decryption Failed]"
+        return "Decryption failed"
 
 # ==== Block Class ====
 class Block:
