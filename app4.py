@@ -176,8 +176,8 @@ if st.button("📄 View Tamper Report"):
         # Create DataFrame for tamper log
         tamper_df = pd.DataFrame(st.session_state.tamper_log)
 
-        # Style the table: Adding border and custom style to make it visually appealing
-       st.dataframe(tamper_df.style.set_properties(
+        # Apply basic styling using st.dataframe (limited styling)
+        st.dataframe(tamper_df.style.set_properties(
             **{
                 'border': '1px solid black',
                 'text-align': 'center',  # Center align text
@@ -190,8 +190,7 @@ if st.button("📄 View Tamper Report"):
 
     else:
         st.success("✅ No tampering recorded.")
-
-
+        
 # ==== Admin Decryption ====
 st.subheader("🔐 Admin Decryption Panel")
 admin_token = st.text_input("Enter Admin Password (Only for Admin)", type="password")
