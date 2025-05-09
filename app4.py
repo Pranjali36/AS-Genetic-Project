@@ -90,7 +90,7 @@ st.markdown("---")
 
 # ==== Manual Tampering ====
 st.markdown("<br>", unsafe_allow_html=True)  # Adds vertical space
-st.markdown("<h4 style=#2F4F4F';'>🛠️ Tamper Block Metadata")
+st.markdown("<h4 style='color:#2F4F4F';>🛠️ Tamper Block Metadata")
 col1, col2 = st.columns(2)
 with col1:
     server_to_edit = st.selectbox("Select Server:", ["Server 1", "Server 2", "Server 3"])
