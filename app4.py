@@ -1,184 +1,188 @@
 import streamlit as st
 import hashlib
 import base64
-import uuid
 import copy
+import random
+from datetime import datetime
+import pandas as pd
 
-# ====== Simulated Genetic Data ======
-meta_data = [
-    {"Patient ID": "P001", "Blood Group": "A+", "Date": "2025-05-10"},
-    {"Patient ID": "P002", "Blood Group": "B-", "Date": "2025-05-09"},
-    {"Patient ID": "P003", "Blood Group": "O+", "Date": "2025-05-08"}
-]
+# ==== Encryption / Decryption ====
+def encrypt_data(data):
+    return base64.b64encode(data.encode()).decode()
 
-real_dna_data = [
-    {
-        "SNP_ID": "rs333",
-        "Chromosome": "3",
-        "Position": "46414947",
-        "Genotype": "∆32/∆32",
-        "Trait": "HIV resistance"
-    },
-    {
-        "SNP_ID": "rs1042713",
-        "Chromosome": "5",
-        "Position": "148206337",
-        "Genotype": "Arg16Gly",
-        "Trait": "Asthma risk"
-    },
-    {
-        "SNP_ID": "rs429358",
-        "Chromosome": "19",
-        "Position": "44908684",
-        "Genotype": "C/C",
-        "Trait": "Alzheimer’s risk"
-    }
-]
-
-# ===== Encryption Functions =====
-def encrypt_data(data_dict):
-    encoded = base64.b64encode(str(data_dict).encode("utf-8")).decode("utf-8")
-    return encoded
-
-def decrypt_data(encrypted_str):
+def decrypt_data(encrypted_data):
     try:
-        decoded = base64.b64decode(encrypted_str.encode("utf-8")).decode("utf-8")
-        return decoded
+        return base64.b64decode(encrypted_data.encode()).decode()
     except Exception:
-        return "Decryption failed"
+        return "[Decryption Failed]"
 
-# ===== Blockchain Block Class =====
+# ==== Block Class ====
 class Block:
-    def __init__(self, index, previous_hash, metadata, genetic_data):
+    def __init__(self, index, timestamp, metadata, genetic_data, previous_hash):
         self.index = index
-        self.previous_hash = previous_hash
+        self.timestamp = timestamp
         self.metadata = metadata
         self.genetic_data = encrypt_data(genetic_data)
+        self.previous_hash = previous_hash
         self.hash = self.calculate_hash()
 
     def calculate_hash(self):
-        content = str(self.index) + self.previous_hash + str(self.metadata) + self.genetic_data
-        return hashlib.sha256(content.encode()).hexdigest()
+        block_content = f"{self.index}{self.timestamp}{self.metadata}{self.genetic_data}{self.previous_hash}"
+        return hashlib.sha256(block_content.encode()).hexdigest()
 
-# ===== Create Initial Blockchain =====
+# ==== Create Blockchain ====
 def create_blockchain():
     blockchain = []
-    previous_hash = "0"
-    for i in range(len(meta_data)):
-        block = Block(i, previous_hash, meta_data[i], real_dna_data[i])
+    metadata_list = [
+        {"Patient ID": "P001", "Test Date": "2023-08-01", "Sample Code": "S1"},
+        {"Patient ID": "P002", "Test Date": "2023-08-02", "Sample Code": "S2"},
+        {"Patient ID": "P003", "Test Date": "2023-08-03", "Sample Code": "S3"},
+    ]
+    dna_list = ["ATGCTACGATCG", "GGGCTAGCTTAC", "TACGGGCTAGCA"]
+    prev_hash = "0"
+
+    for i in range(3):
+        block = Block(i, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), metadata_list[i], dna_list[i], prev_hash)
         blockchain.append(block)
-        previous_hash = block.hash
+        prev_hash = block.hash
     return blockchain
 
+# ==== Setup Chains ====
 original_chain = create_blockchain()
+server_1 = copy.deepcopy(original_chain)
+server_2 = copy.deepcopy(original_chain)
+server_3 = copy.deepcopy(original_chain)
+servers = {"Server 1": server_1, "Server 2": server_2, "Server 3": server_3}
 
-# ====== App UI ======
-st.set_page_config(page_title="GeneBlock App", layout="wide")
+if 'tamper_log' not in st.session_state:
+    st.session_state.tamper_log = []
 
-st.title("🧬 GeneBlock App: A Blockchain-Based Genetic Security Model")
-st.markdown(
-    "<h5 style='color:grey;'>Tamper-proof metadata, secure admin-only genetic data access, and real-time network consensus</h5>",
-    unsafe_allow_html=True
-)
+# ==== UI Setup ====
+st.set_page_config(layout="wide")
+st.title("🧬 GeneBlock App 4: Blockchain + Network Consensus")
+st.markdown("Multiple server copies, admin-only access, real-time tamper detection, and **majority-based network validation**.")
 
-# ====== Initialize Server Chains ======
-if "server1" not in st.session_state:
-    st.session_state.server1 = copy.deepcopy(original_chain)
-if "server2" not in st.session_state:
-    st.session_state.server2 = copy.deepcopy(original_chain)
-if "server3" not in st.session_state:
-    st.session_state.server3 = copy.deepcopy(original_chain)
+# ==== Manual Tampering ====
+st.subheader("🛠️ Tamper Block Metadata")
+col1, col2 = st.columns(2)
+with col1:
+    server_to_edit = st.selectbox("Select Server:", ["Server 1", "Server 2", "Server 3"])
+with col2:
+    block_index = st.selectbox("Select Block Index to Edit:", [0, 1, 2])
 
-# ====== Simulate Hack ======
-st.markdown("### 🛠️ Simulate Data Tampering on Server 1")
-tamper_index = st.number_input("Select Block Index to Tamper (Server 1)", min_value=0, max_value=len(original_chain)-1, step=1)
-tamper_key = st.selectbox("Select Metadata Field to Edit", ["Patient ID", "Blood Group", "Date"])
-tamper_value = st.text_input("Enter New Tampered Value")
+target_block = servers[server_to_edit][block_index]
+new_pid = st.text_input("New Patient ID", value=target_block.metadata["Patient ID"])
+new_sample = st.text_input("New Sample Code", value=target_block.metadata["Sample Code"])
 
-if st.button("⚠️ Inject Tampering into Server 1"):
-    st.session_state.server1[tamper_index].metadata[tamper_key] = tamper_value
-    # Recalculate hash for tampered block and all next blocks
-    for i in range(tamper_index, len(st.session_state.server1)):
-        prev_hash = st.session_state.server1[i-1].hash if i > 0 else "0"
-        st.session_state.server1[i].previous_hash = prev_hash
-        st.session_state.server1[i].hash = st.session_state.server1[i].calculate_hash()
-    st.warning("Tampering simulated on Server 1.")
+if st.button("✏Simulate Hack"):
+    target_block.metadata["Patient ID"] = new_pid
+    target_block.metadata["Sample Code"] = new_sample
 
-# ====== Blockchain Display ======
-st.markdown("### 🔗 Blockchain Status Across Servers")
-cols = st.columns(3)
-servers = [st.session_state.server1, st.session_state.server2, st.session_state.server3]
-titles = ["Server 1", "Server 2", "Server 3"]
-colors = ["#ffdede", "#e0ffe0", "#e0eaff"]
+    # Update this and all subsequent hashes
+    chain = servers[server_to_edit]
+    for i in range(block_index, len(chain)):
+        prev_hash = chain[i-1].hash if i > 0 else "0"
+        chain[i].previous_hash = prev_hash
+        chain[i].hash = chain[i].calculate_hash()
 
-for col, server, title, color in zip(cols, servers, titles, colors):
-    with col:
-        st.markdown(f"#### 🖥️ {title}")
-        for block in server:
-            st.markdown(
-                f"<div style='border:1px solid black; padding:5px; margin:5px; background-color:{color};'>"
-                f"<b>Index:</b> {block.index}<br>"
-                f"<b>Hash:</b> {block.hash[:10]}...<br>"
-                f"<b>Prev Hash:</b> {block.previous_hash[:10]}...<br>"
-                f"<b>Metadata:</b> {block.metadata}<br>"
-                f"</div>",
-                unsafe_allow_html=True
-            )
+    st.session_state.tamper_log.append({
+        "Server": server_to_edit,
+        "Block": block_index,
+        "Time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "Note": "Metadata manually tampered."
+    })
+    st.warning(f"⚠️ Block #{block_index} tampered on {server_to_edit}!")
 
-# ====== Tamper Report Section ======
-st.markdown("### 📋 Tamper Report Based on Consensus")
+# ==== Consensus Checking ====
+def majority_hashes(index):
+    hashes = [server[index].hash for server in servers.values()]
+    return max(set(hashes), key=hashes.count)
 
-def is_chain_valid(chain1, chain2):
-    return all(b1.hash == b2.hash for b1, b2 in zip(chain1, chain2))
+def is_chain_valid(server_chain):
+    for i, block in enumerate(server_chain):
+        if block.hash != majority_hashes(i):
+            return False
+    return True
 
-def majority_valid():
-    s1, s2, s3 = st.session_state.server1, st.session_state.server2, st.session_state.server3
-    valids = [is_chain_valid(s1, s2), is_chain_valid(s2, s3), is_chain_valid(s1, s3)]
-    majority = valids.count(True) >= 2
-    return {
-        "Server 1": is_chain_valid(s1, s2) or is_chain_valid(s1, s3),
-        "Server 2": is_chain_valid(s2, s1) or is_chain_valid(s2, s3),
-        "Server 3": is_chain_valid(s3, s1) or is_chain_valid(s3, s2),
-        "Majority Agreement": majority
-    }
+# ==== Display Chains with Consensus Status ====
+st.subheader("🔗 Blockchain Status Across Servers")
 
-status = majority_valid()
-st.table([{"Server": k, "Status": v} for k, v in status.items()])
+col1, col2, col3 = st.columns(3)
+server_colors = {
+    "Server 1": "#E8F5E9",  # light green
+    "Server 2": "#E3F2FD",  # light blue
+    "Server 3": "#FFF3E0",  # light orange
+}
 
-# ====== Admin Panel ======
-st.markdown("---")
-st.markdown("### 🛡️ Admin Panel")
+for idx, (label, chain) in enumerate(servers.items()):
+    with [col1, col2, col3][idx]:
+        st.markdown(f"**{label}**")
+        for i, block in enumerate(chain):
+            # Check if this block is tampered compared to original
+            original_hash = original_chain[i].hash
+            if block.hash != original_hash:
+                bg_color = "#FFCDD2"  # red for tampered or affected block
+            else:
+                bg_color = server_colors[label]
 
-admin_col1, admin_col2 = st.columns(2)
+            st.markdown(f"""
+                <div style="
+                    background-color: {bg_color}; 
+                    padding: 17px; 
+                    border-radius: 5px; 
+                    margin-bottom: 15px;
+                    word-wrap: break-word;
+                    overflow-wrap: break-word;
+                    white-space: normal;
+                    font-size: 16px;">
+                    <strong>Block #{block.index}</strong><br>
+                    <strong>Timestamp:</strong> {block.timestamp}<br>
+                    <strong>Metadata:</strong> {block.metadata}<br>
+                    <strong>Prev Hash:</strong> {block.previous_hash}...<br>
+                    <strong>Hash:</strong> {block.hash}...
+                </div>
+            """, unsafe_allow_html=True)
+
+# ==== View Tamper Log ====
+st.subheader("📄 Tamper Report")
+if st.button("🕵️ View Tamper Report"):
+    if st.session_state.tamper_log:
+        st.dataframe(pd.DataFrame(st.session_state.tamper_log))
+    else:
+        st.success("✅ No tampering recorded.")
+        
+# ========= Admin Decryption ==========
+
+st.subheader("🔐 Admin Decryption Panel")
+token = st.text_input("Enter Admin Token to Decrypt DNA", type="password")
+if st.button("🔓 Decrypt All Genetic Data"):
+    if token == "ADMIN123":
+        for i, block in enumerate(original_chain):
+            decrypted = decrypt_data(block.genetic_data)
+            st.success(f"Decrypted Block #{i} DNA: {decrypted}")
+        
+# Generate Admin Key if not already created
 if "admin_key" not in st.session_state:
     st.session_state.admin_key = None
 
-with admin_col1:
-    admin_token = st.text_input("🔑 Enter Admin Password", type="password")
-    if st.button("🧬 View Encrypted DNA Data (Admin Only)"):
-        if admin_token == "ADMIN123":
-            for i, block in enumerate(original_chain):
-                decrypted = decrypt_data(block.genetic_data)
-                st.success(f"Block #{i} Decrypted DNA:\n{decrypted}")
-        else:
-            st.error("❌ Invalid Admin Token")
+# Step 1: Generate Admin Key
+if st.button("🔑 Generate Admin Access Key"):
+    import uuid
+    st.session_state.admin_key = str(uuid.uuid4())
+    with st.expander("📥 Admin Key (Copy & Share Securely)", expanded=False):
+        st.text(f"{st.session_state.admin_key}")
+         else:
+        st.error("❌ Invalid admin token!")
 
-with admin_col2:
-    if st.button("🔐 Generate Secure Admin Access Key"):
-        if admin_token == "ADMIN123":
-            st.session_state.admin_key = str(uuid.uuid4())
-            st.info("✅ Key Generated Successfully!")
-            st.code(st.session_state.admin_key, language="text")
-        else:
-            st.error("❌ Invalid Admin Token")
+# Step 2: Simulate Key Sharing
+st.markdown("**Authorized party enters the received secure key below to decrypt DNA:**")
+entered_key = st.text_input("🔐 Enter Secure Admin Key", type="password")
 
-# ====== Decryption by Trusted Party ======
-st.markdown("### 🔓 Secure Key Decryption (Trusted Party Access)")
-entered_key = st.text_input("Enter Secure Admin Key", type="password")
-if st.button("🔍 Decrypt DNA with Secure Key"):
+# Step 3: Attempt to Decrypt
+if st.button("🔓 Decrypt Genetic Data"):
     if st.session_state.admin_key and entered_key == st.session_state.admin_key:
         for i, block in enumerate(original_chain):
             decrypted = decrypt_data(block.genetic_data)
-            st.success(f"Block #{i} Decrypted DNA:\n{decrypted}")
+            st.success(f"Block #{i} DNA: {decrypted}")
     else:
-        st.error("❌ Invalid key or key not generated.")
+        st.error("❌ Invalid key or key not generated. Please contact admin.")
