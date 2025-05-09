@@ -8,7 +8,7 @@ st.set_page_config(page_title="GeneBlock: A Blockchain Model", layout="wide")
 st.markdown("<h1 style='color:#4B0082;'>🌿 GeneBlock: Securing Genomic Data with Blockchain</h1>", unsafe_allow_html=True)
 st.markdown("<h4 style='color:#2F4F4F;'>🔬 Visualizing server consensus, restricted access, and tamper-proof genetics</h4>", unsafe_allow_html=True)
 
-st.divider()
+st.markdown("---")
 
 # ========= Simulated Blockchain Data =========
 # Dummy Realistic DNA Data
