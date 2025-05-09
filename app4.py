@@ -134,7 +134,7 @@ def is_chain_valid(server_chain):
     return True
 
 # ==== Display Chains with Consensus Status ====
-st.subheader("🔗 Blockchain Status Across Servers")
+st.subheader("<h3 style='color:#1E90FF;'>🔗 Blockchain Status Across Servers</h3>", unsafe_allow_html=True)
 
 col1, col2, col3 = st.columns(3)
 server_colors = {
