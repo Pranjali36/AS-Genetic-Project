@@ -18,7 +18,7 @@ def decrypt_data(encrypted_data):
 
 # ==== Block Class ====
 class Block:
-    def __init__(self, index, timestamp, metadata, genetic_data, previous_hash):
+    def __init__(self, index, timestamp, metadata, , previous_hash):
         self.index = index
         self.timestamp = timestamp
         self.metadata = metadata
@@ -38,7 +38,29 @@ def create_blockchain():
         {"Patient ID": "P002", "Test Date": "2023-08-02", "Sample Code": "S2"},
         {"Patient ID": "P003", "Test Date": "2023-08-03", "Sample Code": "S3"},
     ]
-    dna_list = ["ATGCTACGATCG", "GGGCTAGCTTAC", "TACGGGCTAGCA"]
+    realistic_dna_data = [
+    {
+        "SNP ID": "rs333",
+        "Chromosome": "3",
+        "Position": "46414947",
+        "Genotype": "Δ32/Δ32",
+        "Trait": "HIV Resistance"
+    },
+    {
+        "SNP ID": "rs671",
+        "Chromosome": "12",
+        "Position": "112241766",
+        "Genotype": "A/G",
+        "Trait": "Alcohol Flush Reaction"
+    },
+    {
+        "SNP ID": "rs429358",
+        "Chromosome": "19",
+        "Position": "45411941",
+        "Genotype": "C/C",
+        "Trait": "Alzheimer's Risk"
+    }
+]
     prev_hash = "0"
 
     for i in range(3):
@@ -59,8 +81,8 @@ if 'tamper_log' not in st.session_state:
 
 # ==== UI Setup ====
 st.set_page_config(layout="wide")
-st.title("🧬 GeneBlock App 4: Blockchain + Network Consensus")
-st.markdown("Multiple server copies, admin-only access, real-time tamper detection, and **majority-based network validation**.")
+st.title("🧬 GeneBlock: Securing Genomic Data with Blockchain 🌿")
+st.markdown("🔬 Visualizing server consensus, restricted access, and tamper-proof genetics")
 
 # ==== Manual Tampering ====
 st.subheader("🛠️ Tamper Block Metadata")
@@ -177,7 +199,7 @@ if st.session_state.is_admin_authenticated:
     # --- Function 1: View Encrypted DNA Data ---
     if st.button("🔓 Decrypt All Genetic Data"):
         for i, block in enumerate(original_chain):
-            decrypted = decrypt_data(block.genetic_data)
+            decrypted = decrypt_data(block.)
             st.success(f"Decrypted Block #{i} DNA: {decrypted}")
 
     # --- Function 2: Generate Admin Key ---
@@ -196,7 +218,7 @@ if st.session_state.is_admin_authenticated:
     if st.button("🔓 Decrypt Genetic Data Using Shared Key"):
         if st.session_state.admin_key and entered_key == st.session_state.admin_key:
             for i, block in enumerate(original_chain):
-                decrypted = decrypt_data(block.genetic_data)
+                decrypted = decrypt_data(block.)
                 st.success(f"Block #{i} DNA: {decrypted}")
         else:
             st.error("❌ Invalid key or key not generated. Please contact admin.")
