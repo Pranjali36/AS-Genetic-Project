@@ -83,8 +83,8 @@ if 'tamper_log' not in st.session_state:
 
 # ==== UI Setup ====
 st.set_page_config(layout="wide")
-st.title("🧬 GeneBlock App 4: Blockchain + Network Consensus")
-st.markdown("Multiple server copies, admin-only access, real-time tamper detection, and **majority-based network validation**.")
+st.title("🧬 GeneBlock: Securing Genomic Data with Blockchain")
+st.markdown("🌿Visualizing server consensus, restricted access, and tamper-proof genetics.")
 
 # ==== Manual Tampering ====
 st.subheader("🛠️ Tamper Block Metadata")
