@@ -42,6 +42,7 @@ def create_blockchain():
     ]
     dna_list = [
         {
+        "Patient ID": "P001",
         "SNP_ID": "rs333",
         "Chromosome": "3",
         "Position": "46414947",
@@ -49,6 +50,7 @@ def create_blockchain():
         "Trait": "HIV resistance"
     },
     {
+        "Patient ID": "P002"
         "SNP_ID": "rs1042713",
         "Chromosome": "5",
         "Position": "148206337",
@@ -56,6 +58,7 @@ def create_blockchain():
         "Trait": "Asthma risk"
     },
     {
+        "Patient ID": "P003"
         "SNP_ID": "rs429358",
         "Chromosome": "19",
         "Position": "44908684",
