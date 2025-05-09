@@ -39,6 +39,7 @@ def create_blockchain():
         {"Patient ID": "P003", "Test Date": "2023-08-03", "Sample Code": "S3"},
     ]
     dna_list = [
+        {
         "SNP_ID": "rs333",
         "Chromosome": "3",
         "Position": "46414947",
