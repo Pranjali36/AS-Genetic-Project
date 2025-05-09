@@ -143,7 +143,7 @@ def majority_valid():
     }
 
 status = majority_valid()
-st.table(status)
+st.table([{"Server": k, "Status": v} for k, v in status.items()])
 
 # ====== Admin Panel ======
 st.markdown("---")
