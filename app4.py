@@ -88,7 +88,8 @@ st.markdown("<h1 style='color:#4B0082;text-align: center;'>🧬 GeneBlock: Secur
 st.markdown("<h4 style='color:#2F4F4F;text-align: center;'>🌿 Visualizing server consensus, restricted access, and tamper-proof genetics</h4>", unsafe_allow_html=True)
 
 # ==== Manual Tampering ====
-st.markdown("🛠️ Tamper Block Metadata")
+st.markdown("<br>", unsafe_allow_html=True)  # Adds vertical space
+st.title("🛠️ Tamper Block Metadata")
 col1, col2 = st.columns(2)
 with col1:
     server_to_edit = st.selectbox("Select Server:", ["Server 1", "Server 2", "Server 3"])
