@@ -51,7 +51,7 @@ def create_blockchain():
     },
     {
         "Patient ID": "P002"
-        "SNP_ID": "rs1042713",
+        "SNP_ID": "rs3365478",
         "Chromosome": "5",
         "Position": "148206337",
         "Genotype": "Arg16Gly",
