@@ -175,10 +175,8 @@ if st.button("📄 View Tamper Report"):
     if st.session_state.tamper_log:
         # Create DataFrame for tamper log
         tamper_report = pd.DataFrame(st.session_state.tamper_log)
-
         # Apply basic styling using st.dataframe (limited styling)
        st.table(tamper_report.style.set_properties(**{'border-color': 'black', 'border-width': '2px'}))
-
     else:
         st.success("✅ No tampering recorded.")
         
