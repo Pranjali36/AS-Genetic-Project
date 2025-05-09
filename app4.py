@@ -85,12 +85,12 @@ if 'tamper_log' not in st.session_state:
 st.set_page_config(layout="wide")
 # ========= Header =========
 st.markdown("<h1 style='color:#4B0082;text-align: center;'>🧬 GeneBlock: Securing Genomic Data with Blockchain</h1>", unsafe_allow_html=True)
-st.markdown("<h3 style='color:#2F4F4F;text-align: center;'>🌿 Visualizing server consensus, restricted access, and tamper-proof genetics</h4>", unsafe_allow_html=True)
+st.markdown("<h3 style='color:#2F4F4F;text-align: center;'>🌿 Visualizing server consensus, restricted access, and tamper-proof genetics</h3>", unsafe_allow_html=True)
 st.markdown("---")
 
 # ==== Manual Tampering ====
 st.markdown("<br>", unsafe_allow_html=True)  # Adds vertical space
-st.markdown("<h4 style='color:#2F4F4F'>🛠️ Tamper Block Metadata")</h4>"
+st.markdown("<h4 style='color:#2F4F4F;text-align: center;'>🛠️ Tamper Block Metadata</h4>", unsafe_allow_html=True)
 col1, col2 = st.columns(2)
 with col1:
     server_to_edit = st.selectbox("Select Server:", ["Server 1", "Server 2", "Server 3"])
