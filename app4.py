@@ -89,7 +89,7 @@ st.markdown("<h3 style='color:#2F4F4F;text-align: center;'>🌿 Visualizing serv
 st.markdown("---")
 
 # ==== Manual Tampering ====
-st.markdown("<br>", unsafe_allow_html=True)  # Adds vertical space
+#st.markdown("<br>", unsafe_allow_html=True)  # Adds vertical space
 st.markdown("<h4 style='color:#2F4F4F;'>🛠️ Tamper Block Metadata</h4>", unsafe_allow_html=True)
 col1, col2 = st.columns(2)
 with col1:
