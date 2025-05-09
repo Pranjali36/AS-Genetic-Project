@@ -155,6 +155,10 @@ if st.button("🕵️ View Tamper Report"):
 
 st.subheader("🔐 Admin-Only DNA Access")
 
+# ==== Admin Key Generation and Decryption ====
+
+st.subheader("🔐 Admin-Only DNA Access")
+
 # Generate Admin Key if not already created
 if "admin_key" not in st.session_state:
     st.session_state.admin_key = None
@@ -163,10 +167,8 @@ if "admin_key" not in st.session_state:
 if st.button("🔑 Generate Admin Access Key"):
     import uuid
     st.session_state.admin_key = str(uuid.uuid4())
-    #st.success("Admin Key Generated!")
-    #st.code(f"Share this secure key with authorized personnel only:\n\n{st.session_state.admin_key}")
     with st.expander("📥 Admin Key (Copy & Share Securely)", expanded=False):
-    st.text(f"{st.session_state.admin_key}")
+        st.text(f"{st.session_state.admin_key}")
 
 # Step 2: Simulate Key Sharing
 st.markdown("**Authorized party enters the received secure key below to decrypt DNA:**")
