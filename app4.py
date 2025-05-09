@@ -89,7 +89,6 @@ st.markdown("<h3 style='color:#2F4F4F;text-align: center;'>🌿 Visualizing serv
 st.markdown("---")
 
 # ==== Manual Tampering ====
-#st.markdown("<br>", unsafe_allow_html=True)  # Adds vertical space
 st.markdown("<h4 style='color:#2F4F4F;'>🛠️ Tamper Metadata</h4>", unsafe_allow_html=True)
 col1, col2 = st.columns(2)
 with col1:
@@ -175,6 +174,7 @@ st.subheader("📄 Tamper Report")
 if st.button("🕵️ View Tamper Report"):
     if st.session_state.tamper_log:
         st.dataframe(pd.DataFrame(st.session_state.tamper_log))
+        st.table(tamper_report.style.set_properties(**{'border-color': 'black', 'border-width': '2px'}))
     else:
         st.success("✅ No tampering recorded.")
 
