@@ -150,11 +150,17 @@ if st.button("🕵️ View Tamper Report"):
         st.dataframe(pd.DataFrame(st.session_state.tamper_log))
     else:
         st.success("✅ No tampering recorded.")
+        
+# ========= Admin Decryption ==========
 
-# ==== Admin Key Generation and Decryption ====
-
-st.subheader("🔐 Admin-Only DNA Access")
-
+st.subheader("🔐 Admin Decryption Panel")
+token = st.text_input("Enter Admin Token to Decrypt DNA", type="password")
+if st.button("🔓 Decrypt All Genetic Data"):
+    if token == "ADMIN123":
+        for i, block in enumerate(original_chain):
+            decrypted = decrypt_data(block.genetic_data)
+            st.success(f"Decrypted Block #{i} DNA: {decrypted}")
+        
 # Generate Admin Key if not already created
 if "admin_key" not in st.session_state:
     st.session_state.admin_key = None
@@ -165,6 +171,8 @@ if st.button("🔑 Generate Admin Access Key"):
     st.session_state.admin_key = str(uuid.uuid4())
     with st.expander("📥 Admin Key (Copy & Share Securely)", expanded=False):
         st.text(f"{st.session_state.admin_key}")
+         else:
+        st.error("❌ Invalid admin token!")
 
 # Step 2: Simulate Key Sharing
 st.markdown("**Authorized party enters the received secure key below to decrypt DNA:**")
