@@ -49,17 +49,11 @@ https://youtu.be/_160oMzblY8?si=eMMMjZyWmvJlU8eN
 
 🧪 App Demonstrations
 
-App 2
+App 2: Simulates a hack directly on encrypted genetic data and shows what happens when data is tampered without a blockchain.
 
-Simulates a hack directly on encrypted genetic data and shows what happens when data is tampered without a blockchain.
+App 3: Introduces blockchain structure. Shows how tampered data breaks the hash chain and how the system detects and reports it in real-time.
 
-App 3
-
-Introduces blockchain structure. Shows how tampered data breaks the hash chain and how the system detects and reports it in real-time.
-
-App 3.6
-
-Adds admin access and decryption control. Shows server consensus, multiple blockchain replicas, and who can decrypt sensitive DNA.
+App 3.6: Adds admin access and decryption control. Shows server consensus, multiple blockchain replicas, and who can decrypt sensitive DNA.
 
 ## 🧬 Data Structure (Per Patient Record)
 
@@ -95,8 +89,8 @@ Launch App:
 Click “Deploy” and your app will be live with a public link.
 
 🛡️ Tech Stack
-Python
-Streamlit
+Python,
+Streamlit,
 Simulated Blockchain & Encryption Logic
 
 👥 Developed by- Pranjali Thakur, student at Universituy of Geneva
