@@ -155,10 +155,6 @@ if st.button("🕵️ View Tamper Report"):
 
 st.subheader("🔐 Admin-Only DNA Access")
 
-# ==== Admin Key Generation and Decryption ====
-
-st.subheader("🔐 Admin-Only DNA Access")
-
 # Generate Admin Key if not already created
 if "admin_key" not in st.session_state:
     st.session_state.admin_key = None
