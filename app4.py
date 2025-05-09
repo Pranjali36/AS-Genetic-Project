@@ -151,12 +151,30 @@ if st.button("🕵️ View Tamper Report"):
     else:
         st.success("✅ No tampering recorded.")
 
-# ==== Admin Decryption ====
-st.subheader("🔐 Admin Decryption Access")
-admin_token = st.text_input("Enter admin token to decrypt genetic data:", type="password")
-if st.button("🔓 Decrypt DNA"):
-    if admin_token == "ADMIN123":
+# ==== Admin Key Generation and Decryption ====
+
+st.subheader("🔐 Admin-Only DNA Access")
+
+# Generate Admin Key if not already created
+if "admin_key" not in st.session_state:
+    st.session_state.admin_key = None
+
+# Step 1: Generate Admin Key
+if st.button("🔑 Generate Admin Access Key"):
+    import uuid
+    st.session_state.admin_key = str(uuid.uuid4())
+    st.success("Admin Key Generated!")
+    st.code(f"Share this secure key with authorized personnel only:\n\n{st.session_state.admin_key}")
+
+# Step 2: Simulate Key Sharing
+st.markdown("**Authorized party enters the received secure key below to decrypt DNA:**")
+entered_key = st.text_input("🔐 Enter Secure Admin Key", type="password")
+
+# Step 3: Attempt to Decrypt
+if st.button("🔓 Decrypt Genetic Data"):
+    if st.session_state.admin_key and entered_key == st.session_state.admin_key:
         for i, block in enumerate(original_chain):
-            st.success(f"Block #{i} DNA: {decrypt_data(block.genetic_data)}")
+            decrypted = decrypt_data(block.genetic_data)
+            st.success(f"Block #{i} DNA: {decrypted}")
     else:
-        st.error("❌ Invalid token!")
+        st.error("❌ Invalid key or key not generated. Please contact admin.")
