@@ -58,7 +58,7 @@ def create_blockchain():
         "Trait": "Asthma risk"
     },
     {
-        "Patient ID": "P003"
+        "Patient ID": "P003",
         "SNP_ID": "rs429358",
         "Chromosome": "19",
         "Position": "44908684",
