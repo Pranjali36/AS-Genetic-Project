@@ -38,7 +38,28 @@ def create_blockchain():
         {"Patient ID": "P002", "Test Date": "2023-08-02", "Sample Code": "S2"},
         {"Patient ID": "P003", "Test Date": "2023-08-03", "Sample Code": "S3"},
     ]
-    dna_list = ["ATGCTACGATCG", "GGGCTAGCTTAC", "TACGGGCTAGCA"]
+    dna_list = [
+        "SNP_ID": "rs333",
+        "Chromosome": "3",
+        "Position": "46414947",
+        "Genotype": "∆32/∆32",
+        "Trait": "HIV resistance"
+    },
+    {
+        "SNP_ID": "rs1042713",
+        "Chromosome": "5",
+        "Position": "148206337",
+        "Genotype": "Arg16Gly",
+        "Trait": "Asthma risk"
+    },
+    {
+        "SNP_ID": "rs429358",
+        "Chromosome": "19",
+        "Position": "44908684",
+        "Genotype": "C/C",
+        "Trait": "Alzheimer’s risk"
+    }
+    ]
     prev_hash = "0"
 
     for i in range(3):
